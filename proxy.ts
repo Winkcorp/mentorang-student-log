@@ -14,7 +14,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * 우회할 수 없다. 각 영역 layout에서도 한 번 더 검증한다(이중 방어).
  */
 
-const PUBLIC_PATHS = ["/login", "/auth"];
+const PUBLIC_PATHS = ["/login", "/auth", "/preview"];
 
 const ROLE_HOME: Record<string, string> = {
   admin: "/admin",

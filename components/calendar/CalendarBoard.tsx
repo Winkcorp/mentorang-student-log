@@ -291,13 +291,23 @@ export function CalendarBoard(props: CalendarBoardProps) {
   const navBtn =
     "flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-[13px] text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors";
 
-  // ── 셀 내부 렌더러: 세로 구분 (왼쪽 학생 과제 | 오른쪽 멘토·세션) ──
+  // ── 셀 내부 렌더러: 세로 구분 (왼쪽 학생별 과제 묶음 | 오른쪽 멘토·세션) ──
   function renderCellBody(date: string, dense: boolean) {
     const dayEvents = byDate.get(date) ?? [];
     const exceptions = dayEvents.filter((e) => e.kind === "exception");
     const tasks = dayEvents.filter((e) => e.kind === "task");
     const sessions = dayEvents.filter((e) => e.kind === "session");
     const clamp = dense ? "truncate" : "line-clamp-2";
+    const textSize = dense ? "text-xs" : "text-[13px]";
+
+    // 과제를 학생별로 묶는다 — "이 학생의 과제구나" 하고 보이게
+    const taskGroups = new Map<string, { name: string; sid: string | null; list: CalendarEvent[] }>();
+    for (const t of tasks) {
+      const key = t.studentId ?? "?";
+      if (!taskGroups.has(key))
+        taskGroups.set(key, { name: t.studentName, sid: t.studentId, list: [] });
+      taskGroups.get(key)!.list.push(t);
+    }
 
     return (
       <>
@@ -309,41 +319,55 @@ export function CalendarBoard(props: CalendarBoardProps) {
               openFocus(e);
             }}
             title={`${e.studentName} · ${e.title}`}
-            className="mb-[3px] block w-full truncate rounded-md bg-red-50 px-1.5 py-[3px] text-left text-[11px] text-red-500 hover:opacity-75"
+            className={`mb-1 block w-full truncate rounded-md bg-red-50 px-1.5 py-1 text-left ${textSize} text-red-500 hover:opacity-75`}
           >
             🚫 {e.studentName} {e.title}
           </button>
         ))}
         {(tasks.length > 0 || sessions.length > 0) && (
-          <div className="flex min-w-0 gap-1">
-            {/* 왼쪽: 학생 과제 */}
-            <div className="min-w-0 flex-1 space-y-[3px]">
-              {tasks.map((e) => (
-                <button
-                  key={e.id}
-                  onClick={(ev) => {
-                    ev.stopPropagation();
-                    openFocus(e);
-                  }}
-                  title={`${e.studentName} · ${e.title}`}
-                  className={`block w-full rounded-md px-1.5 py-[3px] text-left text-[11px] leading-tight transition-opacity hover:opacity-75 ${clamp} ${
-                    e.status === "done"
-                      ? "bg-gray-50 text-gray-300 line-through"
-                      : `border-l-2 bg-gray-50/80 text-gray-700 ${EDGE[ci(e.studentId)]}`
-                  }`}
-                >
+          <div className="flex min-w-0 gap-1.5">
+            {/* 왼쪽: 학생별 과제 묶음 */}
+            <div className="min-w-0 flex-1 space-y-1.5">
+              {[...taskGroups.values()].map((g) => (
+                <div key={g.sid ?? "?"}>
                   {!studentSel && (
-                    <span className="font-medium">{e.studentName}</span>
-                  )}{" "}
-                  {e.title}
-                </button>
+                    <div className="mb-0.5 flex items-center gap-1 px-0.5">
+                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${DOT[ci(g.sid)]}`} />
+                      <span className={`truncate font-bold text-gray-700 ${dense ? "text-[11px]" : "text-xs"}`}>
+                        {g.name}
+                      </span>
+                      <span className="text-[10px] text-gray-300">
+                        {g.list.filter((t) => t.status === "done").length}/{g.list.length}
+                      </span>
+                    </div>
+                  )}
+                  <div className={`space-y-[3px] ${studentSel ? "" : "pl-2.5"}`}>
+                    {g.list.map((e) => (
+                      <button
+                        key={e.id}
+                        onClick={(ev) => {
+                          ev.stopPropagation();
+                          openFocus(e);
+                        }}
+                        title={`${e.studentName} · ${e.title}`}
+                        className={`block w-full rounded-md px-1.5 py-1 text-left leading-tight transition-opacity hover:opacity-75 ${clamp} ${textSize} ${
+                          e.status === "done"
+                            ? "bg-gray-50 text-gray-300 line-through"
+                            : `border-l-2 bg-gray-50/80 text-gray-700 ${EDGE[ci(e.studentId)]}`
+                        }`}
+                      >
+                        {e.title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
             {/* 세로 구분선 + 오른쪽: 멘토·세션 */}
             {sessions.length > 0 && (
               <>
                 <div className="w-px shrink-0 bg-gray-200/80" />
-                <div className={`min-w-0 space-y-[3px] ${dense ? "w-[42%]" : "w-[45%]"}`}>
+                <div className={`min-w-0 space-y-[3px] ${dense ? "w-[40%]" : "w-[42%]"}`}>
                   {sessions.map((e) => (
                     <button
                       key={e.id}
@@ -352,14 +376,12 @@ export function CalendarBoard(props: CalendarBoardProps) {
                         openFocus(e);
                       }}
                       title={`${e.studentName} · ${e.mentorName ?? ""} ${e.startTime?.slice(0, 5)}`}
-                      className={`block w-full rounded-md px-1.5 py-[3px] text-left text-[11px] font-medium leading-tight transition-opacity hover:opacity-75 ${clamp} ${SOFT[ci(e.studentId)]} ${
+                      className={`block w-full rounded-md px-1.5 py-1 text-left font-medium leading-tight transition-opacity hover:opacity-75 ${clamp} ${textSize} ${SOFT[ci(e.studentId)]} ${
                         e.status === "canceled" ? "opacity-40 line-through" : ""
                       }`}
                     >
                       {e.startTime?.slice(0, 5)} {e.mentorName ?? e.studentName}
-                      {!dense && (
-                        <span className="font-normal"> · {e.studentName}</span>
-                      )}
+                      <span className="font-normal"> · {e.studentName}</span>
                       {e.status && e.status !== "completed" && (
                         <span className="font-normal"> ({SESSION_STATUS_LABEL[e.status]})</span>
                       )}
@@ -525,12 +547,12 @@ export function CalendarBoard(props: CalendarBoardProps) {
           {/* 월간 */}
           {view === "month" && (
             <div className="overflow-x-auto">
-              <div className="min-w-[680px] overflow-hidden rounded-2xl border border-gray-200/70 bg-white">
+              <div className="min-w-[920px] overflow-hidden rounded-2xl border border-gray-200/70 bg-white">
                 <div className="grid grid-cols-7 border-b border-gray-100">
                   {DAY_HEADERS.map((d, i) => (
                     <div
                       key={d}
-                      className={`px-2 py-2 text-center text-[11px] font-semibold ${
+                      className={`px-2 py-2.5 text-center text-xs font-semibold ${
                         i >= 5 ? "text-rose-400" : "text-gray-400"
                       }`}
                     >
@@ -547,17 +569,17 @@ export function CalendarBoard(props: CalendarBoardProps) {
                         <div
                           key={date}
                           onClick={() => openDatePanel(date)}
-                          className={`min-h-[96px] cursor-pointer border-r border-gray-100 p-1 transition-colors last:border-r-0 ${
+                          className={`min-h-[140px] cursor-pointer border-r border-gray-100 p-1.5 transition-colors last:border-r-0 ${
                             inMonth ? "bg-white" : "bg-gray-50/70"
                           } ${isSelected ? "bg-blue-50/60 ring-2 ring-inset ring-blue-300" : "hover:bg-gray-50"}`}
                         >
-                          <div className="mb-1 flex items-center justify-between">
+                          <div className="mb-1.5 flex items-center justify-between">
                             <span
-                              className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${
+                              className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
                                 date === today
                                   ? "bg-blue-600 font-bold text-white"
                                   : inMonth
-                                    ? "font-medium text-gray-600"
+                                    ? "font-semibold text-gray-600"
                                     : "text-gray-300"
                               }`}
                             >
@@ -588,34 +610,34 @@ export function CalendarBoard(props: CalendarBoardProps) {
           {/* 주간 */}
           {view === "week" && (
             <div className="overflow-x-auto">
-              <div className="grid min-w-[840px] grid-cols-7 overflow-hidden rounded-2xl border border-gray-200/70 bg-white">
+              <div className="grid min-w-[1000px] grid-cols-7 overflow-hidden rounded-2xl border border-gray-200/70 bg-white">
                 {weekOf(anchor).map((date, i) => {
                   const isSelected = panel?.t === "date" && panel.date === date;
                   return (
                     <div
                       key={date}
                       onClick={() => openDatePanel(date)}
-                      className={`min-h-[420px] cursor-pointer border-r border-gray-100 last:border-r-0 ${
+                      className={`min-h-[560px] cursor-pointer border-r border-gray-100 last:border-r-0 ${
                         isSelected ? "bg-blue-50/50" : "hover:bg-gray-50/60"
                       }`}
                     >
                       <div
-                        className={`border-b border-gray-100 px-2 py-2 text-center ${
+                        className={`border-b border-gray-100 px-2 py-2.5 text-center ${
                           date === today ? "bg-blue-50" : ""
                         }`}
                       >
-                        <p className={`text-[11px] font-semibold ${i >= 5 ? "text-rose-400" : "text-gray-400"}`}>
+                        <p className={`text-xs font-semibold ${i >= 5 ? "text-rose-400" : "text-gray-400"}`}>
                           {DAY_HEADERS[i]}
                         </p>
                         <p
-                          className={`text-sm font-bold ${
+                          className={`text-base font-bold ${
                             date === today ? "text-blue-600" : "text-gray-800"
                           }`}
                         >
                           {Number(date.slice(8, 10))}
                         </p>
                       </div>
-                      <div className="p-1.5">{renderCellBody(date, false)}</div>
+                      <div className="p-2">{renderCellBody(date, false)}</div>
                     </div>
                   );
                 })}

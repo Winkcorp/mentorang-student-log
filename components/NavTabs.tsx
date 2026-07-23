@@ -13,7 +13,7 @@ export function NavTabs({ nav }: { nav: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="mx-auto max-w-7xl overflow-x-auto px-4">
+    <nav className="mx-auto max-w-[1520px] overflow-x-auto px-4">
       <ul className="flex gap-1 py-1.5">
         {nav.map((item, i) => {
           const active =

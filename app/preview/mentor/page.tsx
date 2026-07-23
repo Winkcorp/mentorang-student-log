@@ -6,9 +6,8 @@ import { AppShell } from "@/components/AppShell";
 /** 미리보기 — 과제 체크(복습 자동 생성), 세션 상태 변경, 대체수업이 로컬로 동작. */
 
 const NAV = [
-  { href: "/preview/mentor", label: "내 학생" },
+  { href: "/preview/mentor", label: "내 학생 · 세션" },
   { href: "/preview/calendar", label: "캘린더" },
-  { href: "/preview/mentor", label: "세션 관리" },
 ];
 
 interface Task {

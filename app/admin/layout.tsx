@@ -8,6 +8,8 @@ const NAV = [
   { href: "/admin/parents", label: "학부모" },
   { href: "/admin/assignments", label: "배정" },
   { href: "/admin/templates", label: "템플릿" },
+  { href: "/admin/plan-assign", label: "계획 배정" },
+  { href: "/admin/exceptions", label: "예외일정" },
   { href: "/admin/settlements", label: "정산" },
   { href: "/admin/users", label: "계정 승인" },
 ];

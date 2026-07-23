@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { loadCalendarData } from "@/lib/calendar/load";
+import { loadCalendarData, loadPresets } from "@/lib/calendar/load";
 import { CalendarBoard } from "@/components/calendar/CalendarBoard";
 import {
   calendarDeleteException,
@@ -7,6 +7,7 @@ import {
   calendarQuickCreate,
   calendarSetSessionStatus,
   calendarToggleTask,
+  calendarUpdateTask,
 } from "@/lib/actions/calendar";
 
 export default async function AdminCalendarPage({
@@ -22,7 +23,10 @@ export default async function AdminCalendarPage({
     : currentYm;
 
   const supabase = await createClient();
-  const data = await loadCalendarData(supabase, ym);
+  const [data, presets] = await Promise.all([
+    loadCalendarData(supabase, ym),
+    loadPresets(supabase),
+  ]);
 
   return (
     <CalendarBoard
@@ -31,6 +35,7 @@ export default async function AdminCalendarPage({
       students={data.students}
       mentors={data.mentors}
       mentorStudents={data.mentorStudents}
+      presets={presets}
       role="admin"
       monthBasePath="/admin/calendar"
       studentTasksBase="/admin/students"
@@ -40,6 +45,7 @@ export default async function AdminCalendarPage({
         setSessionStatus: calendarSetSessionStatus,
         deleteTask: calendarDeleteTask,
         deleteException: calendarDeleteException,
+        updateTask: calendarUpdateTask,
       }}
     />
   );

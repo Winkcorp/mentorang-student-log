@@ -14,15 +14,29 @@ import {
  */
 
 const STUDENTS = [
-  { id: "s1", name: "김학생" },
-  { id: "s2", name: "이학생" },
-  { id: "s3", name: "박학생" },
+  { id: "s1", name: "김학생", school: "한국고", grade: "고2" },
+  { id: "s2", name: "이학생", school: "서울고", grade: "고3" },
+  { id: "s3", name: "박학생", school: "대한고", grade: "고1" },
 ];
 const MENTORS = [
   { id: "m1", name: "박멘토" },
   { id: "m2", name: "최멘토" },
 ];
 const MENTOR_STUDENTS = { m1: ["s1", "s2"], m2: ["s3"] };
+
+const PRESETS = [
+  { id: "p1", kind: "task" as const, subject: "국어", content: "강기본 하루 2강씩", label: "강기본 하루 2강씩" },
+  { id: "p2", kind: "task" as const, subject: "국어", content: "비문학 2지문 분석", label: "비문학 2지문 분석" },
+  { id: "p3", kind: "task" as const, subject: "영어", content: "단어 Day 진도 암기", label: "단어 Day 진도 암기" },
+  { id: "p4", kind: "task" as const, subject: "영어", content: "리스닝 1회분", label: "리스닝 1회분" },
+  { id: "p5", kind: "task" as const, subject: "수학", content: "수1 인강 1강 시청", label: "수1 인강 1강 시청" },
+  { id: "p6", kind: "task" as const, subject: "수학", content: "마플 해당 단원 문제 풀이", label: "마플 해당 단원 문제 풀이" },
+  { id: "p7", kind: "task" as const, subject: "국어", content: "모의고사 기출 1회분", label: "모의고사 기출 1회분" },
+  { id: "p8", kind: "task" as const, subject: "탐구", content: "오답노트 정리", label: "오답노트 정리" },
+  { id: "ps1", kind: "session" as const, label: "세션 17:00~19:00", startTime: "17:00", endTime: "19:00" },
+  { id: "ps2", kind: "session" as const, label: "세션 19:00~21:00", startTime: "19:00", endTime: "21:00" },
+  { id: "ps3", kind: "session" as const, label: "세션 21:00~22:30", startTime: "21:00", endTime: "22:30" },
+];
 
 const NAV = [
   { href: "/preview/calendar", label: "캘린더" },
@@ -166,6 +180,9 @@ export default function PreviewCalendarPage() {
   );
   const [added, setAdded] = useState<CalendarEvent[]>([]);
   const [overrides, setOverrides] = useState<Record<string, string>>({});
+  const [edits, setEdits] = useState<
+    Record<string, { subject: string; content: string }>
+  >({});
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const counter = useRef(0);
 
@@ -173,10 +190,13 @@ export default function PreviewCalendarPage() {
     const base = [...mockMonth(ym), ...added.filter((e) => e.date.startsWith(ym))];
     return base
       .filter((e) => !removed.has(e.sourceId ?? e.id))
-      .map((e) =>
-        overrides[e.id] ? { ...e, status: overrides[e.id] } : e,
-      );
-  }, [ym, added, overrides, removed]);
+      .map((e) => {
+        let out = overrides[e.id] ? { ...e, status: overrides[e.id] } : e;
+        if (edits[e.id])
+          out = { ...out, subject: edits[e.id].subject, title: edits[e.id].content };
+        return out;
+      });
+  }, [ym, added, overrides, edits, removed]);
 
   const ok = { error: null as string | null };
 
@@ -188,25 +208,36 @@ export default function PreviewCalendarPage() {
         students={STUDENTS}
         mentors={MENTORS}
         mentorStudents={MENTOR_STUDENTS}
+        presets={PRESETS}
         role="admin"
         onNavigate={setYm}
         studentTasksBase="/preview/mentor"
         actions={{
-          quickCreate: async ({ suggestion: s, date }: QuickCreatePayload) => {
+          quickCreate: async ({ suggestion: s, date, repeatUntil }: QuickCreatePayload) => {
             const id = `local-${++counter.current}`;
             if (s.kind === "task") {
+              const dates: string[] = [];
+              if (repeatUntil && repeatUntil > date) {
+                let d = date;
+                while (d <= repeatUntil && dates.length < 62) {
+                  dates.push(d);
+                  d = addDays(d, 1);
+                }
+              } else {
+                dates.push(date);
+              }
               setAdded((a) => [
                 ...a,
-                {
-                  id,
-                  kind: "task",
-                  date,
+                ...dates.map((d, i) => ({
+                  id: `${id}-${i}`,
+                  kind: "task" as const,
+                  date: d,
                   title: s.content,
                   subject: s.subject,
                   status: "planned",
                   studentId: s.studentId,
                   studentName: s.studentName,
-                },
+                })),
               ]);
             } else if (s.kind === "session") {
               setAdded((a) => [
@@ -298,6 +329,10 @@ export default function PreviewCalendarPage() {
           },
           deleteTask: async (id) => {
             setRemoved((r) => new Set(r).add(id));
+            return ok;
+          },
+          updateTask: async (id, patch) => {
+            setEdits((e) => ({ ...e, [id]: patch }));
             return ok;
           },
           deleteException: async (id) => {

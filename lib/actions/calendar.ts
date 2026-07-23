@@ -24,17 +24,33 @@ export async function calendarQuickCreate(
   if (!profile?.role || profile.role === "parent")
     return { error: "권한이 없습니다." };
 
-  const { suggestion: s, date } = payload;
+  const { suggestion: s, date, repeatUntil } = payload;
   const supabase = await createClient();
 
   if (s.kind === "task") {
-    const { error } = await supabase.from("tasks").insert({
-      student_id: s.studentId,
-      date,
-      subject: s.subject,
-      content: s.content,
-      status: "planned",
-    });
+    // 기간 반복: date ~ repeatUntil 매일 (최대 62일 안전장치)
+    const dates: string[] = [];
+    if (repeatUntil && repeatUntil > date) {
+      let d = date;
+      while (d <= repeatUntil && dates.length < 62) {
+        dates.push(d);
+        const next = new Date(`${d}T00:00:00Z`);
+        next.setUTCDate(next.getUTCDate() + 1);
+        d = next.toISOString().slice(0, 10);
+      }
+    } else {
+      dates.push(date);
+    }
+
+    const { error } = await supabase.from("tasks").insert(
+      dates.map((d) => ({
+        student_id: s.studentId,
+        date: d,
+        subject: s.subject,
+        content: s.content,
+        status: "planned",
+      })),
+    );
     if (error) return { error: `과제 등록 실패: ${error.message}` };
     revalidateCalendars();
     return { error: null };
@@ -123,6 +139,31 @@ export async function calendarSetSessionStatus(
   if (!data?.length) return { error: "변경 권한이 없거나 세션이 없습니다." };
 
   revalidatePath("/mentor/sessions");
+  revalidateCalendars();
+  return { error: null };
+}
+
+export async function calendarUpdateTask(
+  id: string,
+  patch: { subject: string; content: string },
+): Promise<Result> {
+  const profile = await getProfile();
+  if (!profile?.role || profile.role === "parent")
+    return { error: "권한이 없습니다." };
+
+  const subject = patch.subject.trim();
+  const content = patch.content.trim();
+  if (!subject || !content) return { error: "과목과 내용을 입력하세요." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("tasks")
+    .update({ subject, content })
+    .eq("id", id)
+    .select("id");
+  if (error) return { error: error.message };
+  if (!data?.length) return { error: "수정 권한이 없거나 과제가 없습니다." };
+
   revalidateCalendars();
   return { error: null };
 }

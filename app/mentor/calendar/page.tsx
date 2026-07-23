@@ -1,12 +1,13 @@
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { loadCalendarData } from "@/lib/calendar/load";
+import { loadCalendarData, loadPresets } from "@/lib/calendar/load";
 import { CalendarBoard } from "@/components/calendar/CalendarBoard";
 import {
   calendarDeleteTask,
   calendarQuickCreate,
   calendarSetSessionStatus,
   calendarToggleTask,
+  calendarUpdateTask,
 } from "@/lib/actions/calendar";
 
 export default async function MentorCalendarPage({
@@ -25,7 +26,10 @@ export default async function MentorCalendarPage({
 
   // RLS가 담당 학생·본인 세션으로 자동 제한
   const supabase = await createClient();
-  const data = await loadCalendarData(supabase, ym);
+  const [data, presets] = await Promise.all([
+    loadCalendarData(supabase, ym),
+    loadPresets(supabase),
+  ]);
 
   return (
     <CalendarBoard
@@ -34,6 +38,7 @@ export default async function MentorCalendarPage({
       students={data.students}
       mentors={data.mentors}
       mentorStudents={data.mentorStudents}
+      presets={presets}
       role="mentor"
       monthBasePath="/mentor/calendar"
       studentTasksBase="/mentor/students"
@@ -42,6 +47,7 @@ export default async function MentorCalendarPage({
         toggleTask: calendarToggleTask,
         setSessionStatus: calendarSetSessionStatus,
         deleteTask: calendarDeleteTask,
+        updateTask: calendarUpdateTask,
       }}
     />
   );

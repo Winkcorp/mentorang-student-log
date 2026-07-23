@@ -105,9 +105,19 @@ export default async function AdminSettlementsPage({
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="text-sm">
-                  <span className="font-semibold text-gray-900">
+                  <Link
+                    href={`/admin/settlements/${s.id}`}
+                    className="font-semibold text-gray-900 hover:text-blue-600 hover:underline"
+                    title="근무 내역·계산 과정 보기"
+                  >
                     {mentor?.name}
-                  </span>
+                  </Link>
+                  <Link
+                    href={`/admin/settlements/${s.id}`}
+                    className="ml-1.5 text-xs text-blue-600 hover:underline"
+                  >
+                    내역
+                  </Link>
                   <span
                     className={`ml-2 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[s.status]}`}
                   >

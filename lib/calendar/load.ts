@@ -44,7 +44,7 @@ export async function loadCalendarData(supabase: Supabase, ym: string) {
       .select("id, student_id, start_date, end_date, reason, students(name)")
       .lte("start_date", end)
       .gte("end_date", start),
-    supabase.from("students").select("id, name").eq("status", "active").order("name"),
+    supabase.from("students").select("id, name, school, grade").eq("status", "active").order("name"),
     supabase.from("mentors").select("id, name").eq("status", "active").order("name"),
     supabase.from("assignments").select("mentor_id, student_id"),
   ]);
@@ -123,3 +123,79 @@ const SESSION_LABEL: Record<string, string> = {
   canceled: "취소",
   makeup: "대체",
 };
+
+/**
+ * 빠른 선택(템플릿 픽커) 목록 — 학습 템플릿 항목 + 최근 자주 쓴 과제 +
+ * 대표 세션 시간대. 검색해서 클릭 한 번으로 등록하는 용도.
+ */
+export async function loadPresets(
+  supabase: Supabase,
+): Promise<import("@/components/calendar/CalendarBoard").Preset[]> {
+  const [{ data: items }, { data: recent }] = await Promise.all([
+    supabase
+      .from("template_tasks")
+      .select("id, subject, item_type, config")
+      .limit(200),
+    supabase
+      .from("tasks")
+      .select("subject, content")
+      .order("created_at", { ascending: false })
+      .limit(200),
+  ]);
+
+  const presets: import("@/components/calendar/CalendarBoard").Preset[] = [];
+  const seen = new Set<string>();
+  const pushTask = (subject: string, content: string) => {
+    const key = `${subject}|${content}`;
+    if (!content || seen.has(key)) return;
+    seen.add(key);
+    presets.push({
+      id: `p${presets.length}`,
+      kind: "task",
+      subject,
+      content,
+      label: content,
+    });
+  };
+
+  // 템플릿 항목에서
+  for (const it of items ?? []) {
+    const c = (it.config ?? {}) as Record<string, string>;
+    if (it.item_type === "daily_routine") pushTask(it.subject, c.instruction);
+    if (it.item_type === "conditional") {
+      pushTask(it.subject, c.trigger);
+      pushTask(it.subject, c.action);
+    }
+    if (it.item_type === "one_time") pushTask(it.subject, c.content);
+  }
+
+  // 최근 자주 등록한 과제 (빈도순 상위 15)
+  const freq = new Map<string, { subject: string; content: string; n: number }>();
+  for (const t of recent ?? []) {
+    const key = `${t.subject}|${t.content}`;
+    const cur = freq.get(key);
+    if (cur) cur.n++;
+    else freq.set(key, { subject: t.subject, content: t.content, n: 1 });
+  }
+  [...freq.values()]
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 15)
+    .forEach((f) => pushTask(f.subject, f.content));
+
+  // 대표 세션 시간대
+  for (const [s, e] of [
+    ["17:00", "19:00"],
+    ["19:00", "21:00"],
+    ["21:00", "22:30"],
+  ] as const) {
+    presets.push({
+      id: `ps-${s}`,
+      kind: "session",
+      label: `세션 ${s}~${e}`,
+      startTime: s,
+      endTime: e,
+    });
+  }
+
+  return presets.slice(0, 50);
+}

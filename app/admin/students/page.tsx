@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createStudent, toggleStudentStatus } from "./actions";
 
@@ -96,16 +97,24 @@ export default async function AdminStudentsPage() {
                   </span>
                 )}
               </div>
-              <form action={toggleStudentStatus}>
-                <input type="hidden" name="id" value={s.id} />
-                <input type="hidden" name="current" value={s.status} />
-                <button
-                  type="submit"
-                  className="text-xs text-gray-500 hover:underline"
+              <div className="flex items-center gap-3">
+                <Link
+                  href={`/admin/students/${s.id}/tasks`}
+                  className="text-xs text-blue-600 hover:underline"
                 >
-                  {s.status === "active" ? "비활성화" : "활성화"}
-                </button>
-              </form>
+                  과제 보기
+                </Link>
+                <form action={toggleStudentStatus}>
+                  <input type="hidden" name="id" value={s.id} />
+                  <input type="hidden" name="current" value={s.status} />
+                  <button
+                    type="submit"
+                    className="text-xs text-gray-500 hover:underline"
+                  >
+                    {s.status === "active" ? "비활성화" : "활성화"}
+                  </button>
+                </form>
+              </div>
             </li>
           );
         })}

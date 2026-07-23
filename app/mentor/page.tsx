@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -36,9 +37,17 @@ export default async function MentorHomePage() {
                     {student?.school} {student?.grade}
                   </span>
                 </div>
-                <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-                  {a.subject}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                    {a.subject}
+                  </span>
+                  <Link
+                    href={`/mentor/students/${student?.id}/tasks`}
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    과제 보기
+                  </Link>
+                </div>
               </li>
             );
           })}

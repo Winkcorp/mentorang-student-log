@@ -7,6 +7,7 @@ import Link from "next/link";
 
 const PAGES = [
   { href: "/preview", label: "홈" },
+  { href: "/preview/calendar", label: "⭐ 캘린더" },
   { href: "/preview/login", label: "로그인" },
   { href: "/preview/admin", label: "관리자" },
   { href: "/preview/templates", label: "템플릿" },

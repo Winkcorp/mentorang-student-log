@@ -3,6 +3,7 @@ import { AppShell } from "@/components/AppShell";
 
 const NAV = [
   { href: "/admin", label: "대시보드" },
+  { href: "/admin/calendar", label: "캘린더" },
   { href: "/admin/students", label: "학생" },
   { href: "/admin/mentors", label: "멘토" },
   { href: "/admin/parents", label: "학부모" },

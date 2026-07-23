@@ -2,6 +2,11 @@ import Link from "next/link";
 
 const SCREENS = [
   {
+    href: "/preview/calendar",
+    title: "⭐ 통합 캘린더 (전부 클릭해보세요)",
+    desc: "과제·세션(등원)·예외일정 한 화면 + 학생/멘토 레이어 필터 + 날짜 클릭 자연어 빠른 입력 + 완료 체크 시 복습 자동 생성",
+  },
+  {
     href: "/preview/login",
     title: "로그인 / 가입",
     desc: "이메일 로그인, 가입 후 관리자 승인 대기",

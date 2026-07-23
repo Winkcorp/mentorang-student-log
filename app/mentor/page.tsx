@@ -27,7 +27,7 @@ export default async function MentorHomePage() {
             return (
               <li
                 key={a.id}
-                className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3"
+                className="flex items-center justify-between rounded-2xl border border-gray-200/70 bg-white px-4 py-3"
               >
                 <div>
                   <span className="text-sm font-medium text-gray-900">

@@ -14,7 +14,7 @@ export default async function AdminParentsPage() {
 
       <form
         action={createParent}
-        className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4"
+        className="flex flex-wrap items-end gap-3 rounded-2xl border border-gray-200/70 bg-white p-4"
       >
         <div>
           <label className="mb-1 block text-xs font-medium text-gray-500">
@@ -23,7 +23,7 @@ export default async function AdminParentsPage() {
           <input
             name="name"
             required
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+            className="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
           />
         </div>
         <div>
@@ -33,12 +33,12 @@ export default async function AdminParentsPage() {
           <input
             name="contact"
             placeholder="010-0000-0000"
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+            className="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
           />
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-xl bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
         >
           등록
         </button>
@@ -48,7 +48,7 @@ export default async function AdminParentsPage() {
         {(parents ?? []).map((p) => (
           <li
             key={p.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-gray-200/70 bg-white px-4 py-3"
           >
             <div>
               <span className="text-sm font-medium text-gray-900">

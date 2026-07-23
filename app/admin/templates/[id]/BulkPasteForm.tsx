@@ -13,7 +13,7 @@ export function BulkPasteForm({ templateId }: { templateId: string }) {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
+    <div className="space-y-3 rounded-2xl border border-gray-200/70 bg-white p-4">
       <div>
         <h3 className="text-sm font-semibold text-gray-900">
           1회성 항목 일괄 붙여넣기
@@ -42,7 +42,7 @@ export function BulkPasteForm({ templateId }: { templateId: string }) {
             if (!r.fatal && r.errors.length === 0) setText("");
           })
         }
-        className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        className="rounded-xl bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
       >
         {isPending ? "등록 중..." : "일괄 등록"}
       </button>

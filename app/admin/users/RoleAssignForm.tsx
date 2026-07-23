@@ -40,7 +40,7 @@ export function RoleAssignForm({
         required
         value={role}
         onChange={(e) => setRole(e.target.value)}
-        className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+        className="rounded-xl border border-gray-200 px-2 py-2 text-sm"
       >
         <option value="">역할 선택</option>
         <option value="admin">admin</option>
@@ -52,7 +52,7 @@ export function RoleAssignForm({
         <select
           name="linkId"
           required
-          className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+          className="rounded-xl border border-gray-200 px-2 py-2 text-sm"
         >
           <option value="">
             {role === "mentor" ? "멘토 연결" : "학부모 연결"}
@@ -68,7 +68,7 @@ export function RoleAssignForm({
       <button
         type="submit"
         disabled={isPending || !role}
-        className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        className="rounded-xl bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
       >
         {isPending ? "저장 중..." : "부여"}
       </button>

@@ -20,7 +20,7 @@ const STATUS_STYLE: Record<string, string> = {
   makeup: "bg-purple-50 text-purple-700",
 };
 
-const inputCls = "rounded-lg border border-gray-300 px-3 py-1.5 text-sm";
+const inputCls = "rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none";
 
 export default async function MentorSessionsPage() {
   const profile = await requireRole("mentor");
@@ -69,7 +69,7 @@ export default async function MentorSessionsPage() {
 
       <form
         action={createSession}
-        className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4"
+        className="flex flex-wrap items-end gap-3 rounded-2xl border border-gray-200/70 bg-white p-4"
       >
         <div>
           <label className="mb-1 block text-xs font-medium text-gray-500">
@@ -104,7 +104,7 @@ export default async function MentorSessionsPage() {
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-xl bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
         >
           세션 기록
         </button>
@@ -118,7 +118,7 @@ export default async function MentorSessionsPage() {
           return (
             <li
               key={s.id}
-              className="rounded-xl border border-gray-200 bg-white px-4 py-3"
+              className="rounded-2xl border border-gray-200/70 bg-white px-4 py-3"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="text-sm text-gray-900">

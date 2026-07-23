@@ -27,7 +27,7 @@ export default async function AdminTemplatesPage() {
 
       <form
         action={createTemplate}
-        className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4"
+        className="flex flex-wrap items-end gap-3 rounded-2xl border border-gray-200/70 bg-white p-4"
       >
         <div>
           <label className="mb-1 block text-xs font-medium text-gray-500">
@@ -37,7 +37,7 @@ export default async function AdminTemplatesPage() {
             name="name"
             required
             placeholder="이과_A_4주"
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+            className="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
           />
         </div>
         <div>
@@ -50,12 +50,12 @@ export default async function AdminTemplatesPage() {
             min="1"
             required
             defaultValue={4}
-            className="w-20 rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+            className="w-20 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
           />
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-xl bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
         >
           만들기
         </button>
@@ -65,7 +65,7 @@ export default async function AdminTemplatesPage() {
         {(templates ?? []).map((t) => (
           <li
             key={t.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-gray-200/70 bg-white px-4 py-3"
           >
             <Link
               href={`/admin/templates/${t.id}`}

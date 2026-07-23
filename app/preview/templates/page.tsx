@@ -57,7 +57,7 @@ export default function PreviewTemplatePage() {
             {ITEMS.map((t, i) => (
               <li
                 key={i}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-gray-200/70 bg-white px-4 py-3"
               >
                 <div className="text-sm">
                   <span className="mr-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">

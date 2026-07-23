@@ -31,7 +31,7 @@ export default async function AdminDashboardPage() {
         {cards.map((c) => (
           <div
             key={c.label}
-            className="rounded-xl border border-gray-200 bg-white p-5"
+            className="rounded-2xl border border-gray-200/70 bg-white p-5"
           >
             <p className="text-sm text-gray-500">{c.label}</p>
             <p className="mt-1 text-2xl font-bold text-gray-900">{c.value}</p>

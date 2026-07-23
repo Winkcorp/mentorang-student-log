@@ -7,6 +7,20 @@ export function monthRange(ym: string): { start: string; end: string } {
   return { start, end };
 }
 
+/** 해당 날짜가 속한 주의 월요일 */
+export function mondayOf(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d.toISOString().slice(0, 10);
+}
+
+/** 날짜 더하기 (YYYY-MM-DD) */
+export function plusDays(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 /** 이번 주 월~일 (YYYY-MM-DD) */
 export function currentWeekRange(now = new Date()): {
   monday: string;

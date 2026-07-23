@@ -29,7 +29,7 @@ interface Pending {
   link?: string;
 }
 
-const inputCls = "rounded-lg border border-gray-300 px-3 py-1.5 text-sm";
+const inputCls = "rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none";
 
 export default function PreviewAdminPage() {
   const [students, setStudents] = useState<Student[]>([
@@ -91,7 +91,7 @@ export default function PreviewAdminPage() {
           <h1 className="mb-4 text-xl font-bold text-gray-900">대시보드</h1>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {cards.map((c) => (
-              <div key={c.label} className="rounded-xl border border-gray-200 bg-white p-5">
+              <div key={c.label} className="rounded-2xl border border-gray-200/70 bg-white p-5">
                 <p className="text-sm text-gray-500">{c.label}</p>
                 <p className="mt-1 text-2xl font-bold text-gray-900">{c.value}</p>
               </div>
@@ -101,7 +101,7 @@ export default function PreviewAdminPage() {
 
         <section>
           <h2 className="mb-3 text-base font-semibold text-gray-900">학생 관리</h2>
-          <div className="mb-3 flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4">
+          <div className="mb-3 flex flex-wrap items-end gap-3 rounded-2xl border border-gray-200/70 bg-white p-4">
             <div>
               <label className="mb-1 block text-xs font-medium text-gray-500">이름 *</label>
               <input
@@ -141,7 +141,7 @@ export default function PreviewAdminPage() {
             </div>
             <button
               onClick={addStudent}
-              className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+              className="rounded-xl bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
             >
               등록
             </button>
@@ -191,7 +191,7 @@ export default function PreviewAdminPage() {
               return (
                 <li
                   key={p.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200/70 bg-white p-4"
                 >
                   <span className="text-sm font-medium text-gray-900">{p.email}</span>
                   <div className="flex items-center gap-2">
@@ -224,7 +224,7 @@ export default function PreviewAdminPage() {
                     <button
                       onClick={() => assign(p)}
                       disabled={!sel.role}
-                      className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      className="rounded-xl bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
                     >
                       부여
                     </button>
@@ -246,7 +246,7 @@ export default function PreviewAdminPage() {
             {approved.map((p) => (
               <li
                 key={p.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200/70 bg-white px-4 py-3"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-gray-900">{p.email}</span>

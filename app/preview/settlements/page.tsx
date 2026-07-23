@@ -122,7 +122,7 @@ export default function PreviewSettlementsPage() {
                 "3명 계산 완료. 같은 기간 재실행 시 pending 정산은 재계산되고, 확정된 정산은 건드리지 않습니다. (최멘토: confirmed 상태라 재계산하지 않음)",
               )
             }
-            className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded-xl bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
           >
             2026-07 정산 실행 (활성 멘토 전원)
           </button>
@@ -137,7 +137,7 @@ export default function PreviewSettlementsPage() {
               reason: s.reason ?? "",
             };
             return (
-              <li key={s.id} className="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
+              <li key={s.id} className="space-y-3 rounded-2xl border border-gray-200/70 bg-white p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="text-sm">
                     <button
@@ -160,7 +160,7 @@ export default function PreviewSettlementsPage() {
                     {s.status === "pending" && (
                       <button
                         onClick={() => setStatus(s.id, "confirmed")}
-                        className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700"
+                        className="rounded-xl bg-gray-900 px-3 py-1 text-xs font-medium text-white hover:bg-gray-700"
                       >
                         확정
                       </button>
@@ -270,7 +270,7 @@ export default function PreviewSettlementsPage() {
                           type="number"
                           value={a.amount}
                           onChange={(e) => setAdj({ ...adj, [s.id]: { ...a, amount: e.target.value } })}
-                          className="w-36 rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+                          className="w-36 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -278,7 +278,7 @@ export default function PreviewSettlementsPage() {
                         <input
                           value={a.reason}
                           onChange={(e) => setAdj({ ...adj, [s.id]: { ...a, reason: e.target.value } })}
-                          className="w-52 rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+                          className="w-52 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
                         />
                       </div>
                       <button

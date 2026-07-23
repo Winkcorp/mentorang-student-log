@@ -54,7 +54,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+      <div className="w-full max-w-sm rounded-2xl border border-gray-200/70 bg-white p-8 shadow-sm">
         <h1 className="mb-1 text-xl font-bold text-gray-900">멘토랑</h1>
         <p className="mb-6 text-sm text-gray-500">
           {mode === "login" ? "계정으로 로그인하세요" : "새 계정을 만드세요"}
@@ -101,7 +101,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-xl bg-gray-900 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
           >
             {loading ? "처리 중..." : mode === "login" ? "로그인" : "가입하기"}
           </button>

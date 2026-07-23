@@ -171,7 +171,7 @@ export default function PreviewMentorPage() {
               return (
                 <li
                   key={s.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-gray-200/70 bg-white px-4 py-3"
                 >
                   <div className="text-sm text-gray-900">
                     <span className="font-medium">{s.student}</span>

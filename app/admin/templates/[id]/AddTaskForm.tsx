@@ -9,7 +9,7 @@ import {
   type ItemType,
 } from "@/lib/plan/config";
 
-const inputCls = "rounded-lg border border-gray-300 px-3 py-1.5 text-sm";
+const inputCls = "rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none";
 const labelCls = "mb-1 block text-xs font-medium text-gray-500";
 
 export function AddTaskForm({ templateId }: { templateId: string }) {
@@ -28,7 +28,7 @@ export function AddTaskForm({ templateId }: { templateId: string }) {
           }
         });
       }}
-      className="space-y-3 rounded-xl border border-gray-200 bg-white p-4"
+      className="space-y-3 rounded-2xl border border-gray-200/70 bg-white p-4"
     >
       <input type="hidden" name="templateId" value={templateId} />
 
@@ -195,7 +195,7 @@ export function AddTaskForm({ templateId }: { templateId: string }) {
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        className="rounded-xl bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
       >
         {isPending ? "저장 중..." : "항목 추가"}
       </button>

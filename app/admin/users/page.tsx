@@ -43,7 +43,7 @@ export default async function AdminUsersPage() {
             {pending.map((p) => (
               <li
                 key={p.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200/70 bg-white p-4"
               >
                 <span className="text-sm font-medium text-gray-900">
                   {p.email}
@@ -67,7 +67,7 @@ export default async function AdminUsersPage() {
           {approved.map((p) => (
             <li
               key={p.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200/70 bg-white px-4 py-3"
             >
               <div className="flex items-center gap-3">
                 <span className="text-sm text-gray-900">{p.email}</span>

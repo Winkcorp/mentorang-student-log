@@ -1,125 +1,132 @@
 import { AppShell } from "@/components/AppShell";
+import { mondayOf, plusDays } from "@/lib/dates";
+import {
+  ParentWeekView,
+  type ChildWeek,
+} from "@/components/ParentWeekView";
 
-const NAV = [{ href: "/preview/parent", label: "이번 주 학습" }];
+/** 미리보기 — 학부모 주간 학습 뷰 (mock, 주 이동 동작) */
 
-const TASKS = [
-  {
-    date: "2026-08-03 (월)",
-    items: [
-      { subject: "국어", content: "강기본 하루 2강씩", done: true },
-      { subject: "영어", content: "Day 25-27", done: true },
-      { subject: "수학", content: "수1 인강 1강 시청", done: true },
-    ],
-  },
-  {
-    date: "2026-08-04 (화)",
-    items: [
-      { subject: "국어", content: "강기본 하루 2강씩", done: true },
-      { subject: "영어", content: "Day 28-30", done: false },
-    ],
-  },
-  {
-    date: "2026-08-06 (목)",
-    items: [
-      { subject: "영어", content: "Day 25-27 복습", done: false },
-      { subject: "국어", content: "강기본 하루 2강씩", done: false },
-    ],
-  },
-];
+const NAV = [{ href: "/preview/parent", label: "주간 학습" }];
 
-export default function PreviewParentPage() {
-  const total = TASKS.flatMap((t) => t.items).length;
-  const done = TASKS.flatMap((t) => t.items).filter((i) => i.done).length;
-  const rate = Math.round((done / total) * 100);
+function mockWeek(monday: string, today: string): ChildWeek[] {
+  const days = Array.from({ length: 7 }, (_, i) => plusDays(monday, i));
+  let unit = 25;
+
+  return [
+    {
+      id: "s1",
+      name: "김학생",
+      school: "한국고",
+      grade: "고2",
+      mentors: [
+        { name: "박멘토", subject: "국어" },
+        { name: "최멘토", subject: "수학" },
+      ],
+      days: days.map((date, i) => {
+        const past = date < today;
+        const tasks =
+          i === 6
+            ? []
+            : [
+                {
+                  id: `d-${date}`,
+                  subject: "국어",
+                  content: "강기본 하루 2강씩",
+                  done: past,
+                },
+                {
+                  id: `s-${date}`,
+                  subject: "영어",
+                  content: `Day ${(unit += 3) - 3}-${unit - 1}`,
+                  done: past && i % 3 !== 2,
+                },
+                ...(i === 2
+                  ? [
+                      {
+                        id: `r-${date}`,
+                        subject: "영어",
+                        content: "Day 22-24 복습",
+                        done: past,
+                        linked: true,
+                      },
+                    ]
+                  : []),
+              ];
+        const sessions =
+          i === 0 || i === 2
+            ? [
+                {
+                  id: `ss-${date}`,
+                  startTime: "19:00",
+                  endTime: "21:00",
+                  status: past ? "completed" : "completed",
+                  mentorName: "박멘토",
+                },
+              ]
+            : [];
+        return { date, tasks, sessions };
+      }),
+    },
+    {
+      id: "s2",
+      name: "김동생",
+      school: "한국중",
+      grade: "중3",
+      mentors: [{ name: "최멘토", subject: "수학" }],
+      days: days.map((date, i) => ({
+        date,
+        tasks:
+          i >= 5
+            ? []
+            : [
+                {
+                  id: `m-${date}`,
+                  subject: "수학",
+                  content: "쎈 2단원 유형 10문제",
+                  done: date < today && i % 2 === 0,
+                },
+              ],
+        sessions:
+          i === 4
+            ? [
+                {
+                  id: `ms-${date}`,
+                  startTime: "17:00",
+                  endTime: "19:00",
+                  status: i === 4 && date < today ? "no_show" : "completed",
+                  mentorName: "최멘토",
+                },
+              ]
+            : [],
+      })),
+    },
+  ];
+}
+
+export default async function PreviewParentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string }>;
+}) {
+  const params = await searchParams;
+  const today = new Date().toISOString().slice(0, 10);
+  const monday = /^\d{4}-\d{2}-\d{2}$/.test(params.week ?? "")
+    ? mondayOf(params.week!)
+    : mondayOf(today);
+  const sunday = plusDays(monday, 6);
 
   return (
     <AppShell title="학부모" nav={NAV} userLabel="parent@example.com">
-      <div className="space-y-8">
-        <div>
-          <h1 className="mb-1 text-xl font-bold text-gray-900">이번 주 학습</h1>
-          <p className="text-sm text-gray-500">2026-08-03 ~ 2026-08-09</p>
-        </div>
-
-        <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-bold text-gray-900">
-              김학생
-              <span className="ml-2 text-sm font-normal text-gray-500">
-                한국고 고2
-              </span>
-            </h2>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-32 overflow-hidden rounded-full bg-gray-200">
-                <div
-                  className="h-full rounded-full bg-blue-600"
-                  style={{ width: `${rate}%` }}
-                />
-              </div>
-              <span className="text-sm font-semibold text-blue-700">
-                {rate}%
-              </span>
-            </div>
-          </div>
-
-          <p className="text-sm text-gray-600">
-            담당 멘토: <b>박멘토</b> (국어), <b>최멘토</b> (수학)
-          </p>
-
-          <div>
-            <h3 className="mb-1 text-sm font-semibold text-gray-700">
-              이번 주 세션
-            </h3>
-            <ul className="space-y-1 text-sm text-gray-600">
-              <li>
-                2026-08-03 (월) 19:00~21:00
-                <span className="ml-1 text-xs text-gray-400">완료</span>
-              </li>
-              <li>
-                2026-08-05 (수) 19:00~21:00
-                <span className="ml-1 text-xs text-gray-400">대체수업</span>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="mb-1 text-sm font-semibold text-gray-700">
-              과제 ({done}/{total})
-            </h3>
-            <div className="space-y-2">
-              {TASKS.map((g) => (
-                <div key={g.date}>
-                  <p className="text-xs font-medium text-gray-500">{g.date}</p>
-                  <ul className="mt-0.5 space-y-0.5">
-                    {g.items.map((t, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm">
-                        <span
-                          className={
-                            t.done ? "text-green-600" : "text-gray-300"
-                          }
-                        >
-                          {t.done ? "✓" : "○"}
-                        </span>
-                        <span className="rounded-full bg-blue-50 px-1.5 py-0.5 text-xs text-blue-700">
-                          {t.subject}
-                        </span>
-                        <span
-                          className={
-                            t.done
-                              ? "text-gray-400 line-through"
-                              : "text-gray-800"
-                          }
-                        >
-                          {t.content}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      </div>
+      <ParentWeekView
+        monday={monday}
+        sunday={sunday}
+        today={today}
+        childrenWeeks={mockWeek(monday, today)}
+        prevHref={`/preview/parent?week=${plusDays(monday, -7)}`}
+        nextHref={`/preview/parent?week=${plusDays(monday, 7)}`}
+        todayHref="/preview/parent"
+      />
     </AppShell>
   );
 }

@@ -27,7 +27,7 @@ export default async function AdminExceptionsPage() {
 
       <form
         action={createException}
-        className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4"
+        className="flex flex-wrap items-end gap-3 rounded-2xl border border-gray-200/70 bg-white p-4"
       >
         <div>
           <label className="mb-1 block text-xs font-medium text-gray-500">
@@ -35,7 +35,7 @@ export default async function AdminExceptionsPage() {
           </label>
           <select
             name="studentId"
-            className="rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+            className="rounded-xl border border-gray-200 px-2 py-2 text-sm"
           >
             <option value="">전체 (학원 단위)</option>
             {(students ?? []).map((s) => (
@@ -53,7 +53,7 @@ export default async function AdminExceptionsPage() {
             name="startDate"
             type="date"
             required
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+            className="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
           />
         </div>
         <div>
@@ -64,7 +64,7 @@ export default async function AdminExceptionsPage() {
             name="endDate"
             type="date"
             required
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+            className="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
           />
         </div>
         <div>
@@ -74,12 +74,12 @@ export default async function AdminExceptionsPage() {
           <input
             name="reason"
             placeholder="가족여행"
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+            className="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
           />
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-xl bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
         >
           등록
         </button>
@@ -93,7 +93,7 @@ export default async function AdminExceptionsPage() {
           return (
             <li
               key={e.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-gray-200/70 bg-white px-4 py-3"
             >
               <div className="text-sm text-gray-900">
                 <span className="font-medium">

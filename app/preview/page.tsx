@@ -58,7 +58,7 @@ export default function PreviewIndexPage() {
           <li key={s.href}>
             <Link
               href={s.href}
-              className="block rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:bg-blue-50"
+              className="block rounded-2xl border border-gray-200/70 bg-white p-4 hover:border-blue-300 hover:bg-blue-50"
             >
               <p className="font-semibold text-gray-900">{s.title}</p>
               <p className="text-sm text-gray-500">{s.desc}</p>

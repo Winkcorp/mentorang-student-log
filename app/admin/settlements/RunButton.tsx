@@ -17,7 +17,7 @@ export function RunButton({ ym }: { ym: string }) {
             setResult(await runMonthlySettlements(ym));
           })
         }
-        className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        className="rounded-xl bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
       >
         {isPending ? "정산 중..." : `${ym} 정산 실행 (활성 멘토 전원)`}
       </button>

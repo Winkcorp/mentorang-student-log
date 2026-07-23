@@ -101,7 +101,7 @@ export default async function AdminSettlementsPage({
           return (
             <li
               key={s.id}
-              className="space-y-3 rounded-xl border border-gray-200 bg-white p-4"
+              className="space-y-3 rounded-2xl border border-gray-200/70 bg-white p-4"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="text-sm">
@@ -135,7 +135,7 @@ export default async function AdminSettlementsPage({
                       <input type="hidden" name="id" value={s.id} />
                       <button
                         type="submit"
-                        className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700"
+                        className="rounded-xl bg-gray-900 px-3 py-1 text-xs font-medium text-white hover:bg-gray-700"
                       >
                         확정
                       </button>
@@ -210,7 +210,7 @@ export default async function AdminSettlementsPage({
                         type="number"
                         step="0.01"
                         defaultValue={s.adjustment_amount ?? ""}
-                        className="w-36 rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+                        className="w-36 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
                       />
                     </div>
                     <div>
@@ -220,7 +220,7 @@ export default async function AdminSettlementsPage({
                       <input
                         name="adjustmentReason"
                         defaultValue={s.adjustment_reason ?? ""}
-                        className="w-52 rounded-lg border border-gray-300 px-3 py-1.5 text-sm"
+                        className="w-52 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
                       />
                     </div>
                     <button

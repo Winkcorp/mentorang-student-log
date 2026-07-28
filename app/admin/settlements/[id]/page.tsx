@@ -64,6 +64,8 @@ export default async function SettlementDetailPage({
     .eq("mentor_id", settlement.mentor_id)
     .gte("date", settlement.period_start)
     .lte("date", settlement.period_end)
+    // 정산 계산과 같은 조건이어야 내역과 금액이 어긋나지 않는다
+    .is("deleted_at", null)
     .order("date")
     .order("start_time");
 

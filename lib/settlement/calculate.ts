@@ -4,6 +4,8 @@
  * 규칙 (개발용 초기값 — 정책 확정 시 CLAUDE.md와 함께 수정):
  *  - no_show(학생 귀책): 정산 "포함" (TBD 기본값)
  *  - canceled(멘토 귀책 등): 정산 제외
+ *  - scheduled(시리즈로 미리 깔아둔 예정 세션): 아직 진행되지 않았으므로 제외
+ *  - 소프트 삭제(deleted_at)된 세션은 애초에 조회되지 않는다 (호출부 책임)
  *  - makeup(대체수업): 포함. related_session_id로 연결된 원 세션이
  *    함께 집계되는 이중 정산 금지 — 대체수업이 존재하는 원 세션은
  *    상태와 무관하게 집계에서 제외한다 (실제 진행된 세션 기준).
@@ -23,7 +25,7 @@ export interface SettlementSession {
   date: string;
   start_time: string; // "HH:MM" 또는 "HH:MM:SS"
   end_time: string;
-  status: "completed" | "no_show" | "canceled" | "makeup";
+  status: "scheduled" | "completed" | "no_show" | "canceled" | "makeup";
   related_session_id: string | null;
 }
 

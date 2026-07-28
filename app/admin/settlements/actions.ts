@@ -38,7 +38,9 @@ async function runForMentor(
     .select("id, date, start_time, end_time, status, related_session_id")
     .eq("mentor_id", mentor.id)
     .gte("date", periodStart)
-    .lte("date", periodEnd);
+    .lte("date", periodEnd)
+    // 소프트 삭제된 세션은 정산 대상이 아니다 (운영 화면에서 지운 세션)
+    .is("deleted_at", null);
 
   const result = calculateSettlement({
     rateType: mentor.rate_type,

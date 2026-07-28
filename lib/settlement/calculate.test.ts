@@ -20,6 +20,31 @@ const session = (
 });
 
 describe("calculateSettlement", () => {
+  it("scheduled(예정) 세션은 아직 진행 전이므로 집계에서 제외한다", () => {
+    const r = calculateSettlement({
+      rateType: "per_session",
+      rateAmount: 50000,
+      sessions: [
+        session("s1", "completed"),
+        session("s2", "scheduled"),
+        session("s3", "scheduled"),
+      ],
+    });
+    expect(r.totalSessions).toBe(1);
+    expect(r.countedSessionIds).toEqual(["s1"]);
+    expect(r.amount).toBe(50000);
+  });
+
+  it("scheduled만 있으면 flat도 0원 (활동 없는 기간)", () => {
+    const r = calculateSettlement({
+      rateType: "flat",
+      rateAmount: 800000,
+      sessions: [session("s1", "scheduled"), session("s2", "scheduled")],
+    });
+    expect(r.totalSessions).toBe(0);
+    expect(r.amount).toBe(0);
+  });
+
   it("hourly: 진행시간 × 단가, 분 단위 반올림 (100분 → 1.67h)", () => {
     const r = calculateSettlement({
       rateType: "hourly",

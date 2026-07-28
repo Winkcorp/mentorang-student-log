@@ -31,14 +31,17 @@ export async function loadCalendarData(supabase: Supabase, ym: string) {
         "id, date, subject, content, status, related_task_id, student_id, students(name)",
       )
       .gte("date", start)
-      .lte("date", end),
+      .lte("date", end)
+      .is("deleted_at", null),
     supabase
       .from("sessions")
       .select(
         "id, date, start_time, end_time, status, student_id, mentor_id, students(name), mentors(name)",
       )
       .gte("date", start)
-      .lte("date", end),
+      .lte("date", end)
+      // 소프트 삭제된 세션은 캘린더에 남지 않아야 한다
+      .is("deleted_at", null),
     supabase
       .from("exceptions")
       .select("id, student_id, start_date, end_date, reason, students(name)")

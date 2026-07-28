@@ -7,7 +7,14 @@ import { bulkAddOneTime, type BulkResult } from "../actions";
  * GPT 학습플랜 표(주차/요일/과목/내용)를 붙여넣어 one_time 항목을 일괄 등록.
  * 실패한 행은 행 번호와 이유를 그대로 보여준다.
  */
-export function BulkPasteForm({ templateId }: { templateId: string }) {
+export function BulkPasteForm({
+  templateId,
+  subjectNames,
+}: {
+  templateId: string;
+  /** 마스터에 등록된 과목 — 여기 없는 과목명은 행 에러로 돌아온다 */
+  subjectNames: string[];
+}) {
   const [text, setText] = useState("");
   const [result, setResult] = useState<BulkResult | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -21,6 +28,15 @@ export function BulkPasteForm({ templateId }: { templateId: string }) {
         <p className="text-xs text-gray-500">
           한 줄에 하나씩: 주차 / 요일 / 과목 / 내용 (탭·파이프(|)·쉼표 구분)
           <br />예: <code>1주 | 토 | 국어 | 모의고사 기출 1회분</code>
+          <br />
+          쓸 수 있는 과목:{" "}
+          {subjectNames.length ? (
+            <b>{subjectNames.join(" · ")}</b>
+          ) : (
+            <span className="text-amber-600">
+              등록된 과목이 없습니다 — 마스터 관리에서 먼저 추가하세요.
+            </span>
+          )}
         </p>
       </div>
 

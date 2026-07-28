@@ -2,6 +2,15 @@ import { AppShell } from "@/components/AppShell";
 import { AddTaskForm } from "@/app/admin/templates/[id]/AddTaskForm";
 import { BulkPasteForm } from "@/app/admin/templates/[id]/BulkPasteForm";
 import { ITEM_TYPE_LABEL } from "@/lib/plan/config";
+import type { Subject } from "@/lib/masters/types";
+
+/** 미리보기용 과목 마스터 (DB 조회 없이 폼 모양만 보여준다) */
+const PREVIEW_SUBJECTS: Subject[] = [
+  { id: "s1", name: "국어", display_order: 1, color: "#ef4444" },
+  { id: "s2", name: "영어", display_order: 2, color: "#3b82f6" },
+  { id: "s3", name: "수학", display_order: 3, color: "#22c55e" },
+  { id: "s4", name: "탐구", display_order: 4, color: "#a855f7" },
+];
 
 const NAV = [
   { href: "/preview/admin", label: "대시보드" },
@@ -46,8 +55,11 @@ export default function PreviewTemplatePage() {
         </div>
 
         {/* 실제 클라이언트 폼 컴포넌트 그대로 — 유형 선택 시 입력 필드가 바뀜 */}
-        <AddTaskForm templateId="preview" />
-        <BulkPasteForm templateId="preview" />
+        <AddTaskForm templateId="preview" subjects={PREVIEW_SUBJECTS} />
+        <BulkPasteForm
+          templateId="preview"
+          subjectNames={PREVIEW_SUBJECTS.map((s) => s.name)}
+        />
 
         <section>
           <h2 className="mb-3 text-base font-semibold text-gray-900">

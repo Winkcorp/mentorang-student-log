@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import {
   addDays,
   generatePlanTasks,
@@ -52,7 +52,7 @@ describe("날짜 유틸", () => {
 describe("daily_routine 생성", () => {
   const item: TemplateItem = {
     id: "tt-daily",
-    subject: "국어",
+    subject_id: "국어",
     item_type: "daily_routine",
     config: { instruction: "강기본 하루 2강씩" },
   };
@@ -75,7 +75,7 @@ describe("daily_routine 생성", () => {
 describe("sequential 생성", () => {
   const item: TemplateItem = {
     id: "tt-seq",
-    subject: "영어",
+    subject_id: "영어",
     item_type: "sequential",
     config: {
       unit_label: "Day",
@@ -148,7 +148,7 @@ describe("sequential 생성", () => {
 describe("conditional 생성", () => {
   const item: TemplateItem = {
     id: "tt-cond",
-    subject: "수학",
+    subject_id: "수학",
     item_type: "conditional",
     config: { trigger: "수1 인강 1강 시청", action: "마플 문제 풀이" },
   };
@@ -176,7 +176,7 @@ describe("one_time 생성", () => {
       items: [
         {
           id: "tt-once",
-          subject: "국어",
+          subject_id: "국어",
           item_type: "one_time",
           config: { week_number: 2, day_of_week: "sat", content: "모의고사" },
         },
@@ -195,7 +195,7 @@ describe("one_time 생성", () => {
       items: [
         {
           id: "tt-once2",
-          subject: "국어",
+          subject_id: "국어",
           item_type: "one_time",
           config: { week_number: 3, day_of_week: "sat", content: "모의고사" },
         },
@@ -209,7 +209,7 @@ describe("one_time 생성", () => {
 describe("planReactiveTask — done 체크 시 후속 과제", () => {
   const seqItem: TemplateItem = {
     id: "tt-seq",
-    subject: "영어",
+    subject_id: "영어",
     item_type: "sequential",
     config: {
       unit_label: "Day",
@@ -221,7 +221,7 @@ describe("planReactiveTask — done 체크 시 후속 과제", () => {
   };
   const condItem: TemplateItem = {
     id: "tt-cond",
-    subject: "수학",
+    subject_id: "수학",
     item_type: "conditional",
     config: { trigger: "인강 시청", action: "마플 문제 풀이" },
   };
@@ -230,7 +230,7 @@ describe("planReactiveTask — done 체크 시 후속 과제", () => {
     id: "task-1",
     student_id: STUDENT,
     date: "2026-08-03",
-    subject: "영어",
+    subject_id: "영어",
     content: "Day 25-27",
     related_task_id: null,
   };
@@ -254,7 +254,7 @@ describe("planReactiveTask — done 체크 시 후속 과제", () => {
 
   it("conditional 트리거 완료 → 같은 날짜 액션 과제", () => {
     const r = planReactiveTask({
-      task: { ...baseTask, subject: "수학", content: "인강 시청" },
+      task: { ...baseTask, subject_id: "수학", content: "인강 시청" },
       item: condItem,
       exceptions: [],
     });
@@ -264,7 +264,7 @@ describe("planReactiveTask — done 체크 시 후속 과제", () => {
 
   it("액션 날짜가 예외 기간과 겹치면 다음 가용일로", () => {
     const r = planReactiveTask({
-      task: { ...baseTask, subject: "수학", content: "인강 시청" },
+      task: { ...baseTask, subject_id: "수학", content: "인강 시청" },
       item: condItem,
       exceptions: [exception("2026-08-03", "2026-08-04")],
     });

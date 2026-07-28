@@ -15,6 +15,7 @@ const NAV = [
   { href: "/admin/plan-assign", label: "계획 배정" },
   { href: "/admin/exceptions", label: "예외일정" },
   { href: "/admin/settlements", label: "정산" },
+  { href: "/admin/masters", label: "마스터" },
   { href: "/admin/users", label: "계정 승인" },
 ];
 

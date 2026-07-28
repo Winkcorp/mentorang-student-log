@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { parseOneTimeTable } from "./parseOneTime";
 
 describe("parseOneTimeTable — GPT 학습플랜 표 파싱", () => {

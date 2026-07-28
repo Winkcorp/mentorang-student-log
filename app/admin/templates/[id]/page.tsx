@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FALLBACK_SUBJECT_COLOR, loadMasters } from "@/lib/masters/load";
 import { createClient } from "@/lib/supabase/server";
 import {
   ITEM_TYPE_LABEL,
@@ -42,11 +43,19 @@ export default async function TemplateDetailPage({
 
   if (!template) notFound();
 
-  const { data: tasks } = await supabase
-    .from("template_tasks")
-    .select("id, subject, item_type, config")
-    .eq("template_id", id)
-    .order("created_at");
+  const [{ data: tasks }, masters] = await Promise.all([
+    supabase
+      .from("template_tasks")
+      .select("id, item_type, config, subjects(name, color)")
+      .eq("template_id", id)
+      .order("created_at"),
+    loadMasters(),
+  ]);
+
+  const subjectOf = (rel: unknown) =>
+    (Array.isArray(rel) ? rel[0] : rel) as
+      | { name: string; color: string }
+      | null;
 
   return (
     <div className="space-y-6">
@@ -62,8 +71,11 @@ export default async function TemplateDetailPage({
         </h1>
       </div>
 
-      <AddTaskForm templateId={template.id} />
-      <BulkPasteForm templateId={template.id} />
+      <AddTaskForm templateId={template.id} subjects={masters.subjects} />
+      <BulkPasteForm
+        templateId={template.id}
+        subjectNames={masters.subjects.map((s) => s.name)}
+      />
 
       <section>
         <h2 className="mb-3 text-base font-semibold text-gray-900">
@@ -79,7 +91,15 @@ export default async function TemplateDetailPage({
                 <span className="mr-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
                   {ITEM_TYPE_LABEL[t.item_type as ItemType]}
                 </span>
-                <span className="font-medium text-gray-900">{t.subject}</span>
+                <span
+                  className="mr-1 rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                  style={{
+                    backgroundColor:
+                      subjectOf(t.subjects)?.color ?? FALLBACK_SUBJECT_COLOR,
+                  }}
+                >
+                  {subjectOf(t.subjects)?.name ?? "과목 미지정"}
+                </span>
                 <span className="ml-2 text-gray-600">
                   {describeConfig(t.item_type as ItemType, t.config)}
                 </span>

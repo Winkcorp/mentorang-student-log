@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
@@ -40,7 +40,7 @@ async function loadAssignContext(
         .single(),
       supabase
         .from("template_tasks")
-        .select("id, subject, item_type, config")
+        .select("id, subject_id, item_type, config")
         .eq("template_id", templateId),
       supabase
         .from("students")
@@ -177,7 +177,7 @@ export async function applyPlanAssignment(
       generated.map((g) => ({
         student_id: studentId,
         date: g.date,
-        subject: g.subject,
+        subject_id: g.subject_id,
         content: g.content,
         status: "planned",
         source_template_id: templateId,

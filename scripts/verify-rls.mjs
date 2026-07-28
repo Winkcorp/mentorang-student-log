@@ -159,6 +159,75 @@ async function main() {
     const { data: m } = await pending.from("mentors").select("id");
     check("role=null: students/tasks/mentors 전부 0건",
       (s ?? []).length === 0 && (t ?? []).length === 0 && (m ?? []).length === 0);
+
+    // 마스터도 승인 전에는 보이면 안 된다
+    const { data: sub } = await pending.from("subjects").select("id");
+    const { data: st } = await pending.from("session_types").select("id");
+    const { data: rm } = await pending.from("rooms").select("id");
+    check("role=null: 마스터(subjects/session_types/rooms) 전부 0건",
+      (sub ?? []).length === 0 && (st ?? []).length === 0 && (rm ?? []).length === 0,
+      `subjects=${(sub ?? []).length} types=${(st ?? []).length} rooms=${(rm ?? []).length}`);
+  }
+
+  // ---- 스키마 v2 신규 테이블 ------------------------------------------
+  console.log("\n== 마스터 읽기: 승인된 역할은 허용 ==");
+  {
+    const { data: p } = await parentA.from("subjects").select("id, name");
+    check("학부모: 과목 마스터 읽기 가능 (과제 표시에 필요)", (p ?? []).length > 0,
+      `rows=${(p ?? []).length}`);
+    const { data: m } = await mentor.from("session_types").select("id");
+    check("멘토: 세션유형 마스터 읽기 가능", (m ?? []).length > 0);
+  }
+
+  console.log("\n== 마스터 쓰기: admin만 (차단되어야 함) ==");
+  {
+    const { data, error } = await parentA.from("subjects")
+      .insert({ name: `침입-${Date.now()}`, display_order: 999 }).select("id");
+    check("학부모: 과목 추가 차단", error !== null || (data ?? []).length === 0);
+
+    const { data: m, error: mErr } = await mentor.from("rooms")
+      .insert({ name: `침입룸-${Date.now()}` }).select("id");
+    check("멘토: 공간 추가 차단", mErr !== null || (m ?? []).length === 0);
+  }
+
+  console.log("\n== 운영 테이블: 학부모 접근 차단 ==");
+  {
+    for (const table of [
+      "mentor_capabilities",
+      "session_series",
+      "room_blocks",
+      "attendance_overrides",
+    ]) {
+      const { data, error } = await parentA.from(table).select("id");
+      check(`학부모: ${table} 차단`, error !== null || (data ?? []).length === 0,
+        `rows=${(data ?? []).length}`);
+    }
+  }
+
+  console.log("\n== 운영 테이블: 멘토는 본인 범위만 ==");
+  {
+    const { data: caps } = await mentor.from("mentor_capabilities")
+      .select("id, mentor_id");
+    const onlyMine = (caps ?? []).every((c) => c.mentor_id === MENTOR_1);
+    check("멘토: 본인 자격만 조회", onlyMine, `rows=${(caps ?? []).length}`);
+
+    const { data: other } = await mentor.from("mentor_capabilities")
+      .select("id").neq("mentor_id", MENTOR_1);
+    check("멘토: 타 멘토 자격 차단", (other ?? []).length === 0);
+
+    const { data: series } = await mentor.from("session_series").select("id");
+    check("멘토: 담당 배정의 시리즈만 조회", series !== null,
+      `rows=${(series ?? []).length}`);
+
+    const { data: w, error: wErr } = await mentor.from("session_series")
+      .insert({
+        assignment_id: "44444444-4444-4444-4444-444444444401",
+        time_slot_id: "00000000-0000-0000-0000-000000000000",
+        day_of_week: 1, start_time: "10:00", end_time: "11:00",
+        start_date: "2026-09-01", total_weeks: 1,
+      }).select("id");
+    check("멘토: 시리즈 생성 차단 (admin 전용)",
+      wErr !== null || (w ?? []).length === 0);
   }
 
   const failed = results.filter((r) => !r.ok);

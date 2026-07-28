@@ -8,11 +8,18 @@ import {
   DAY_LABEL,
   type ItemType,
 } from "@/lib/plan/config";
+import type { Subject } from "@/lib/masters/types";
 
 const inputCls = "rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none";
 const labelCls = "mb-1 block text-xs font-medium text-gray-500";
 
-export function AddTaskForm({ templateId }: { templateId: string }) {
+export function AddTaskForm({
+  templateId,
+  subjects,
+}: {
+  templateId: string;
+  subjects: Subject[];
+}) {
   const [itemType, setItemType] = useState<ItemType>("daily_routine");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -35,7 +42,14 @@ export function AddTaskForm({ templateId }: { templateId: string }) {
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <label className={labelCls}>과목 *</label>
-          <input name="subject" required placeholder="국어" className={inputCls} />
+          <select name="subjectId" required className={inputCls}>
+            <option value="">선택</option>
+            {subjects.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className={labelCls}>유형 *</label>

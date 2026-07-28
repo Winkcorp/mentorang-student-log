@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import { getProfile } from "@/lib/auth";
@@ -41,7 +41,7 @@ export async function toggleTask(
   const { data: task } = await supabase
     .from("tasks")
     .select(
-      "id, student_id, date, subject, content, status, related_task_id, source_template_task_id",
+      "id, student_id, date, subject_id, content, status, related_task_id, source_template_task_id",
     )
     .eq("id", taskId)
     .single();
@@ -103,7 +103,7 @@ async function createReactiveTask(
     id: string;
     student_id: string;
     date: string;
-    subject: string;
+    subject_id: string;
     content: string;
     related_task_id: string | null;
     source_template_task_id: string | null;
@@ -113,7 +113,7 @@ async function createReactiveTask(
 
   const { data: item } = await supabase
     .from("template_tasks")
-    .select("id, template_id, subject, item_type, config")
+    .select("id, template_id, subject_id, item_type, config")
     .eq("id", task.source_template_task_id)
     .single();
 
@@ -143,7 +143,7 @@ async function createReactiveTask(
   const { error } = await supabase.from("tasks").insert({
     student_id: task.student_id,
     date: reactive.date,
-    subject: reactive.subject,
+    subject_id: reactive.subject_id,
     content: reactive.content,
     status: "planned",
     source_template_id: item.template_id,

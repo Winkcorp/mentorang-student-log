@@ -23,14 +23,14 @@ export interface ExceptionPeriod {
 
 export interface TemplateItem {
   id: string;
-  subject: string;
+  subject_id: string;
   item_type: ItemType;
   config: Record<string, unknown>;
 }
 
 export interface GeneratedTask {
   date: string;
-  subject: string;
+  subject_id: string;
   content: string;
   source_template_task_id: string;
 }
@@ -98,7 +98,7 @@ function generateDailyRoutine(
     .filter((d) => !isExcludedDate(d, studentId, exceptions))
     .map((date) => ({
       date,
-      subject: item.subject,
+      subject_id: item.subject_id,
       content: config.instruction,
       source_template_task_id: item.id,
     }));
@@ -136,7 +136,7 @@ function generateSequential(
 
     tasks.push({
       date: available[i],
-      subject: item.subject,
+      subject_id: item.subject_id,
       content: range,
       source_template_task_id: item.id,
     });
@@ -158,7 +158,7 @@ function generateConditionalTriggers(
   const config = item.config as unknown as ConditionalConfig;
   return dates.map((date) => ({
     date,
-    subject: item.subject,
+    subject_id: item.subject_id,
     content: config.trigger,
     source_template_task_id: item.id,
   }));
@@ -181,7 +181,7 @@ function generateOneTime(
   return [
     {
       date: addDays(startDate, offset),
-      subject: item.subject,
+      subject_id: item.subject_id,
       content: config.content,
       source_template_task_id: item.id,
     },
@@ -223,7 +223,7 @@ export function generatePlanTasks(input: GenerateInput): GeneratedTask[] {
 
 export interface ReactiveTask {
   date: string;
-  subject: string;
+  subject_id: string;
   content: string;
   source_template_task_id: string;
   related_task_id: string; // 원본(학습/트리거) task
@@ -241,7 +241,7 @@ export function planReactiveTask(params: {
     id: string;
     student_id: string;
     date: string;
-    subject: string;
+    subject_id: string;
     content: string;
     related_task_id: string | null;
   };
@@ -262,7 +262,7 @@ export function planReactiveTask(params: {
     );
     return {
       date,
-      subject: task.subject,
+      subject_id: task.subject_id,
       content: `${task.content} 복습`,
       source_template_task_id: item.id,
       related_task_id: task.id,
@@ -274,7 +274,7 @@ export function planReactiveTask(params: {
     const date = nextAvailableDate(task.date, task.student_id, exceptions);
     return {
       date,
-      subject: task.subject,
+      subject_id: task.subject_id,
       content: config.action,
       source_template_task_id: item.id,
       related_task_id: task.id,

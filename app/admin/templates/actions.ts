@@ -9,6 +9,7 @@ import {
   type DayOfWeek,
 } from "@/lib/plan/config";
 import { parseOneTimeTable, type ParseError } from "@/lib/plan/parseOneTime";
+import { loadSubjectsByName } from "@/lib/subjects/resolve";
 
 export interface ActionResult {
   error: string | null;
@@ -51,10 +52,10 @@ export async function addTemplateTask(
   await requireRole("admin");
 
   const templateId = String(formData.get("templateId") ?? "");
-  const subject = String(formData.get("subject") ?? "").trim();
+  const subjectId = String(formData.get("subjectId") ?? "");
   const itemType = String(formData.get("itemType") ?? "") as ItemType;
 
-  if (!templateId || !subject) return { error: "과목을 입력하세요." };
+  if (!templateId || !subjectId) return { error: "과목을 선택하세요." };
 
   let config: Record<string, unknown>;
   switch (itemType) {
@@ -117,7 +118,7 @@ export async function addTemplateTask(
 
   const { error } = await supabase.from("template_tasks").insert({
     template_id: templateId,
-    subject,
+    subject_id: subjectId,
     item_type: itemType,
     config,
   });
@@ -172,24 +173,38 @@ export async function bulkAddOneTime(
   if (!template)
     return { inserted: 0, errors, fatal: "템플릿을 찾을 수 없습니다." };
 
-  // 템플릿 기간 초과 주차는 행 단위 에러로 이동
-  const inRange = rows.filter((r) => {
+  // 과목 이름 → id. 마스터에 없는 과목은 만들지 않고 행 에러로 돌려준다
+  const subjects = await loadSubjectsByName();
+
+  const inRange: { row: (typeof rows)[number]; subjectId: string }[] = [];
+  for (const r of rows) {
     if (r.week_number > template.duration_weeks) {
       errors.push({
         line: r.line,
         raw: `${r.week_number}주 ${r.day_of_week} ${r.content}`,
         reason: `주차(${r.week_number})가 템플릿 기간(${template.duration_weeks}주)을 초과합니다.`,
       });
-      return false;
+      continue;
     }
-    return true;
-  });
+
+    const subject = subjects.get(r.subject.trim());
+    if (!subject) {
+      errors.push({
+        line: r.line,
+        raw: `${r.week_number}주 ${r.day_of_week} ${r.subject} ${r.content}`,
+        reason: `등록되지 않은 과목입니다: "${r.subject}" — 마스터 관리에서 먼저 추가하세요.`,
+      });
+      continue;
+    }
+
+    inRange.push({ row: r, subjectId: subject.id });
+  }
 
   if (inRange.length > 0) {
     const { error } = await supabase.from("template_tasks").insert(
-      inRange.map((r) => ({
+      inRange.map(({ row: r, subjectId }) => ({
         template_id: templateId,
-        subject: r.subject,
+        subject_id: subjectId,
         item_type: "one_time",
         config: {
           week_number: r.week_number,

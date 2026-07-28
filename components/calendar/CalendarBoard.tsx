@@ -961,9 +961,12 @@ function FocusPanel({
   function addTask() {
     const content = newTask.trim();
     if (!content || !student) return;
-    const SUBJECTS = SUBJECT_FALLBACK;
-    const subject = SUBJECTS.find((s) => content.startsWith(s)) ?? "기타";
-    const body = subject === "기타" ? content : content.slice(subject.length).trim() || `${subject} 학습`;
+    // 앞머리가 과목명이면 떼어내고, 아니면 과목 없이 내용만 저장한다.
+    // (예전에는 "기타"로 채웠는데, 마스터에 없는 이름이라 저장이 실패했다)
+    const subject = SUBJECT_FALLBACK.find((s) => content.startsWith(s)) ?? "";
+    const body = subject
+      ? content.slice(subject.length).trim() || `${subject} 학습`
+      : content;
     run(
       () =>
         actions.quickCreate({

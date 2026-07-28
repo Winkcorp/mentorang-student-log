@@ -184,9 +184,11 @@ export function parseQuickAdd(
       kind: "task",
       studentId: student.id,
       studentName: student.name,
-      subject: subject ?? "기타",
+      // 과목을 못 찾으면 비워서 넘긴다 — 서버가 과목 없이 저장한다.
+      // ("기타" 같은 가짜 이름을 채우면 마스터에 없어 저장이 막힌다)
+      subject: subject ?? "",
       content: content || (subject ? `${subject} 학습` : ""),
-      label: `✏️ 과제 — ${student.name} · ${subject ?? "기타"} · ${content || `${subject} 학습`}`,
+      label: `✏️ 과제 — ${student.name} · ${subject ?? "미지정"} · ${content || `${subject} 학습`}`,
     });
   }
 

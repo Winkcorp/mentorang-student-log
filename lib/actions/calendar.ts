@@ -43,20 +43,20 @@ export async function calendarQuickCreate(
       dates.push(date);
     }
 
-    // 화면은 과목을 이름으로 다루지만 저장은 subject_id로 한다
+    // 화면은 과목을 이름으로 다루지만 저장은 subject_id로 한다.
+    //
+    // 여기서 오는 과목명은 자유 입력을 훑어 "추측한" 값이다(빠른입력 파서,
+    // 포커스 패널의 한 줄 입력). 마스터에 없다고 등록 자체를 막으면
+    // 사용자가 적은 내용이 통째로 날아간다 — 과목만 비우고 저장한다.
+    // 화면에는 "미지정"으로 보이므로 나중에 고칠 수 있다.
     const subjects = await loadSubjectsByName();
-    const subject = subjects.get(s.subject.trim());
-    if (!subject) {
-      return {
-        error: `등록되지 않은 과목입니다: "${s.subject}" — 마스터 관리에서 먼저 추가하세요.`,
-      };
-    }
+    const subjectId = subjects.get(s.subject.trim())?.id ?? null;
 
     const { error } = await supabase.from("tasks").insert(
       dates.map((d) => ({
         student_id: s.studentId,
         date: d,
-        subject_id: subject.id,
+        subject_id: subjectId,
         content: s.content,
         status: "planned",
       })),

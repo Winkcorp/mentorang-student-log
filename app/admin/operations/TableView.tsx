@@ -29,8 +29,17 @@ const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "status", label: "상태" },
 ];
 
+/**
+ * 셀 안의 편집 위젯.
+ *
+ * 폭을 지정하지 않는다. date/time/select는 내용에 맞는 고유 폭을 갖는데,
+ * w-full(=width:100%)이나 고정 px로 덮으면 값이 잘려 옆 칸과 겹쳐 보인다.
+ * (table-layout:auto에서 셀 너비는 내용으로 정해지므로, 그 안에서 100%를
+ *  다시 계산하는 것 자체가 순환이다)
+ * 표 전체는 min-w를 줘서 좁아지면 줄바꿈 대신 가로 스크롤이 생기게 한다.
+ */
 const cellInput =
-  "w-full rounded-lg border border-transparent bg-transparent px-1.5 py-1 text-xs hover:border-gray-300 focus:border-gray-400 focus:bg-white focus:outline-none";
+  "rounded-lg border border-transparent bg-transparent px-1.5 py-1 text-xs hover:border-gray-300 focus:border-gray-400 focus:bg-white focus:outline-none";
 
 /**
  * 기본 표 뷰. 주간 그리드를 재현하지 않는다 — 세션이 몰려도 행이 겹치지 않고,
@@ -95,7 +104,8 @@ export function TableView({
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-gray-200/70 bg-white">
-      <table className="w-full min-w-[900px] text-left text-xs">
+      {/* 좁아지면 줄바꿈 대신 가로 스크롤이 생긴다 */}
+      <table className="w-full min-w-[1100px] text-left text-xs">
         <thead className="border-b border-gray-200 bg-gray-50 text-gray-500">
           <tr>
             <th className="w-8 px-3 py-2">
@@ -107,7 +117,10 @@ export function TableView({
               />
             </th>
             {COLUMNS.map((c) => (
-              <th key={c.key} className="px-3 py-2 font-medium">
+              <th
+                key={c.key}
+                className="whitespace-nowrap px-3 py-2 font-medium"
+              >
                 <button
                   type="button"
                   onClick={() => {
@@ -124,7 +137,14 @@ export function TableView({
                 </button>
               </th>
             ))}
-            <th className="px-3 py-2 font-medium">제목 (계산됨)</th>
+            {/*
+              마지막 컬럼이 남는 폭을 전부 흡수한다(w-full).
+              이게 없으면 브라우저가 여유 공간을 모든 컬럼에 나눠 넣어
+              날짜·시간 칸 사이가 헐렁하게 벌어진다.
+            */}
+            <th className="w-full whitespace-nowrap px-3 py-2 font-medium">
+              제목 (계산됨)
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -142,7 +162,7 @@ export function TableView({
                 />
               </td>
 
-              <td className="px-3 py-1.5">
+              <td className="whitespace-nowrap px-3 py-1.5">
                 <input
                   type="date"
                   defaultValue={r.date}
@@ -169,7 +189,7 @@ export function TableView({
                       onPatch(r.id, { startTime: e.target.value });
                     }
                   }}
-                  className={`${cellInput} inline w-[74px]`}
+                  className={cellInput}
                 />
                 <span className="text-gray-400">~</span>
                 <input
@@ -181,11 +201,13 @@ export function TableView({
                       onPatch(r.id, { endTime: e.target.value });
                     }
                   }}
-                  className={`${cellInput} inline w-[74px]`}
+                  className={cellInput}
                 />
               </td>
 
-              <td className="px-3 py-1.5 text-gray-900">{r.studentName}</td>
+              <td className="whitespace-nowrap px-3 py-1.5 text-gray-900">
+                {r.studentName}
+              </td>
 
               <td className="px-3 py-1.5">
                 <select
@@ -220,7 +242,7 @@ export function TableView({
                 </select>
               </td>
 
-              <td className="px-3 py-1.5 text-gray-600">
+              <td className="whitespace-nowrap px-3 py-1.5 text-gray-600">
                 {typeName(r.sessionTypeId) || "-"}
               </td>
 
@@ -239,7 +261,9 @@ export function TableView({
                 </select>
               </td>
 
-              <td className="px-3 py-1.5 text-gray-500">{r.title}</td>
+              <td className="whitespace-nowrap px-3 py-1.5 text-gray-500">
+                {r.title}
+              </td>
             </tr>
           ))}
           {!sorted.length && (

@@ -261,6 +261,14 @@ export default async function AdminAttendancePage({
             const status = row.manualAllowed
               ? (row.override ?? "none")
               : row.derived;
+
+            // 세션은 있는데 아직 판정 대상이 아닌 경우(예정만 있는 날).
+            // "세션 없음"으로 표시하면 바로 옆 "세션 N건"과 모순돼 보인다.
+            const label =
+              status === "none" && row.sessions.length > 0
+                ? "판정 전"
+                : ATTENDANCE_LABEL[status];
+
             return (
               <li
                 key={row.student.id}
@@ -273,7 +281,7 @@ export default async function AdminAttendancePage({
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${ATTENDANCE_STYLE[status]}`}
                 >
-                  {ATTENDANCE_MARK[status]} {ATTENDANCE_LABEL[status]}
+                  {ATTENDANCE_MARK[status]} {label}
                 </span>
 
                 {row.sessions.length > 0 ? (

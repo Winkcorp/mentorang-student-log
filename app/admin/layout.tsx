@@ -3,11 +3,14 @@ import { AppShell } from "@/components/AppShell";
 
 const NAV = [
   { href: "/admin", label: "대시보드" },
+  { href: "/admin/operations", label: "운영" },
   { href: "/admin/calendar", label: "캘린더" },
   { href: "/admin/students", label: "학생" },
   { href: "/admin/mentors", label: "멘토" },
   { href: "/admin/parents", label: "학부모" },
   { href: "/admin/assignments", label: "배정" },
+  { href: "/admin/series", label: "세션 시리즈" },
+  { href: "/admin/attendance", label: "출결" },
   { href: "/admin/templates", label: "템플릿" },
   { href: "/admin/plan-assign", label: "계획 배정" },
   { href: "/admin/exceptions", label: "예외일정" },

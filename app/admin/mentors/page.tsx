@@ -1,3 +1,5 @@
+﻿import Link from "next/link";
+import { byId, loadMasters } from "@/lib/masters/load";
 import { createClient } from "@/lib/supabase/server";
 import { createMentor, toggleMentorStatus } from "./actions";
 
@@ -9,11 +11,32 @@ const RATE_TYPE_LABEL: Record<string, string> = {
 
 export default async function AdminMentorsPage() {
   const supabase = await createClient();
-  const { data: mentors } = await supabase
-    .from("mentors")
-    .select("id, name, subjects, rate_type, rate_amount, status")
-    .order("status")
-    .order("name");
+
+  const [{ data: mentors }, { data: capabilities }, masters] =
+    await Promise.all([
+      supabase
+        .from("mentors")
+        .select("id, name, rate_type, rate_amount, status")
+        .order("status")
+        .order("name"),
+      supabase
+        .from("mentor_capabilities")
+        .select("mentor_id, session_type_id, subject_id"),
+      loadMasters(),
+    ]);
+
+  const sessionTypeById = byId(masters.sessionTypes);
+  const subjectById = byId(masters.subjects);
+
+  /** 담당 자격 요약 — "국어PT·국어 / 공습" (담당 과목의 정본은 capabilities) */
+  const capabilitySummary = new Map<string, string>();
+  for (const c of capabilities ?? []) {
+    const type = sessionTypeById.get(c.session_type_id)?.name ?? "?";
+    const subject = c.subject_id ? subjectById.get(c.subject_id)?.name : null;
+    const label = subject ? `${type}·${subject}` : type;
+    const prev = capabilitySummary.get(c.mentor_id);
+    capabilitySummary.set(c.mentor_id, prev ? `${prev} / ${label}` : label);
+  }
 
   return (
     <div className="space-y-6">
@@ -30,16 +53,6 @@ export default async function AdminMentorsPage() {
           <input
             name="name"
             required
-            className="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-500">
-            과목 (쉼표 구분)
-          </label>
-          <input
-            name="subjects"
-            placeholder="국어, 영어"
             className="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
           />
         </div>
@@ -87,11 +100,16 @@ export default async function AdminMentorsPage() {
             }`}
           >
             <div>
-              <span className="text-sm font-medium text-gray-900">
+              <Link
+                href={`/admin/mentors/${m.id}`}
+                className="text-sm font-medium text-gray-900 hover:underline"
+              >
                 {m.name}
-              </span>
+              </Link>
               <span className="ml-2 text-xs text-gray-500">
-                {(m.subjects ?? []).join(" · ")}
+                {capabilitySummary.get(m.id) ?? (
+                  <span className="text-amber-600">담당 자격 미등록</span>
+                )}
               </span>
               <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
                 {RATE_TYPE_LABEL[m.rate_type]}{" "}

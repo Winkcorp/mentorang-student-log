@@ -1,4 +1,4 @@
--- =============================================================
+﻿-- =============================================================
 -- 테스트용 seed 데이터 (개발 환경 전용 — 운영 DB에 넣지 말 것)
 -- 재실행해도 결과가 같도록 idempotent하게 작성한다.
 --
@@ -90,14 +90,11 @@ insert into public.students (id, name, school, grade, parent_id, status) values
 on conflict (id) do nothing;
 
 -- -------------------------------------------------------------
--- 멘토 2명 (시급제 / 회당제)
--- mentors.subjects는 DEPRECATED — 담당 과목의 정본은 mentor_capabilities
+-- 멘토 2명 (시급제 / 회당제) — 담당 과목은 mentor_capabilities로 등록한다
 -- -------------------------------------------------------------
-insert into public.mentors (id, name, subjects, rate_type, rate_amount, status) values
-  ('33333333-3333-3333-3333-333333333301', '박멘토', array['국어', '영어'],
-   'hourly', 25000.00, 'active'),
-  ('33333333-3333-3333-3333-333333333302', '최멘토', array['수학'],
-   'per_session', 60000.00, 'active')
+insert into public.mentors (id, name, rate_type, rate_amount, status) values
+  ('33333333-3333-3333-3333-333333333301', '박멘토', 'hourly', 25000.00, 'active'),
+  ('33333333-3333-3333-3333-333333333302', '최멘토', 'per_session', 60000.00, 'active')
 on conflict (id) do nothing;
 
 -- -------------------------------------------------------------

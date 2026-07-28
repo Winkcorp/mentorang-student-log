@@ -50,3 +50,12 @@ export function byId<T extends { id: string }>(items: T[]): Map<string, T> {
 
 /** 과목 색상 — 마스터에 없으면 중립 회색 */
 export const FALLBACK_SUBJECT_COLOR = "#94a3b8";
+
+/**
+ * PostgREST 임베드(`subjects(name)`) 결과에서 과목 이름을 꺼낸다.
+ * 관계 임베드는 단일 객체이거나 배열로 올 수 있어 양쪽을 받는다.
+ */
+export function embeddedSubjectName(rel: unknown): string {
+  const s = Array.isArray(rel) ? rel[0] : rel;
+  return (s as { name?: string } | null | undefined)?.name ?? "미지정";
+}

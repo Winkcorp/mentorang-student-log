@@ -1,6 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+
+/**
+ * 빠른 입력의 과목 선택지.
+ *
+ * 한계: 마스터(subjects)에서 받아오지 못하고 있다. 이 캘린더는 중첩
+ * 컴포넌트가 깊어 prop을 내리려면 구조를 손봐야 해서 남겨뒀다.
+ * 여기 없는 과목을 고르면 서버 액션이 "등록되지 않은 과목입니다" 오류를
+ * 돌려주므로 잘못 저장되지는 않는다. 마스터를 바꾸면 여기도 맞춰야 한다.
+ */
+const SUBJECT_FALLBACK = ["국어", "영어", "수학", "탐구"];
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -951,7 +961,7 @@ function FocusPanel({
   function addTask() {
     const content = newTask.trim();
     if (!content || !student) return;
-    const SUBJECTS = ["국어", "영어", "수학", "과학", "사회", "한국사"];
+    const SUBJECTS = SUBJECT_FALLBACK;
     const subject = SUBJECTS.find((s) => content.startsWith(s)) ?? "기타";
     const body = subject === "기타" ? content : content.slice(subject.length).trim() || `${subject} 학습`;
     run(
@@ -1259,12 +1269,12 @@ function DatePanel({
   onClose: () => void;
   colorOf: (id: string) => string;
 }) {
-  const SUBJECT_OPTIONS = ["국어", "영어", "수학", "과학", "사회", "한국사", "탐구", "기타"];
+  const SUBJECT_OPTIONS = SUBJECT_FALLBACK;
 
   const [input, setInput] = useState("");
   const [pickedStudent, setPickedStudent] = useState<string | null>(defaultStudentId);
   // 구조화 입력: [과목 선택][상세 내용][기간]
-  const [subject, setSubject] = useState("국어");
+  const [subject, setSubject] = useState(SUBJECT_FALLBACK[0]);
   const [content, setContent] = useState("");
   const [repeatMode, setRepeatMode] = useState<"once" | "daily">("once");
   const [until, setUntil] = useState(addDaysStr(date, 6));

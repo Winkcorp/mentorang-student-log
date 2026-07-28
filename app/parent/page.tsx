@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth";
+import { embeddedSubjectName } from "@/lib/masters/types";
 import { createClient } from "@/lib/supabase/server";
 import { mondayOf, plusDays } from "@/lib/dates";
 import {
@@ -44,14 +45,16 @@ export default async function ParentHomePage({
       ? await Promise.all([
           supabase
             .from("tasks")
-            .select("id, student_id, date, subject, content, status, related_task_id")
+            .select(
+              "id, student_id, date, content, status, related_task_id, subjects(name)",
+            )
             .in("student_id", childIds)
             .gte("date", monday)
             .lte("date", sunday)
             .order("date"),
           supabase
             .from("assignments")
-            .select("student_id, mentor_id, subject, end_date")
+            .select("student_id, mentor_id, end_date, subjects(name)")
             .in("student_id", childIds),
           supabase.from("parent_mentors_view").select("id, name"),
           supabase
@@ -75,7 +78,7 @@ export default async function ParentHomePage({
       .filter((a) => a.student_id === child.id && !a.end_date)
       .map((a) => ({
         name: mentorNameById.get(a.mentor_id) ?? "―",
-        subject: a.subject,
+        subject: embeddedSubjectName(a.subjects),
       })),
     days: weekDates.map((date) => ({
       date,
@@ -83,7 +86,7 @@ export default async function ParentHomePage({
         .filter((t) => t.student_id === child.id && t.date === date)
         .map((t) => ({
           id: t.id,
-          subject: t.subject,
+          subject: embeddedSubjectName(t.subjects),
           content: t.content,
           done: t.status === "done",
           linked: !!t.related_task_id,

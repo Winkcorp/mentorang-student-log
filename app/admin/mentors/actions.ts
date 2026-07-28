@@ -8,22 +8,17 @@ export async function createMentor(formData: FormData) {
   await requireRole("admin");
 
   const name = String(formData.get("name") ?? "").trim();
-  const subjectsRaw = String(formData.get("subjects") ?? "").trim();
   const rateType = String(formData.get("rateType") ?? "");
   const rateAmount = Number(formData.get("rateAmount") ?? 0);
 
   if (!name || !["hourly", "per_session", "flat"].includes(rateType)) return;
   if (!Number.isFinite(rateAmount) || rateAmount < 0) return;
 
-  const subjects = subjectsRaw
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-
+  // 담당 과목은 여기서 받지 않는다 — 멘토 상세 화면에서
+  // mentor_capabilities(세션유형 x 과목)로 등록한다
   const supabase = await createClient();
   await supabase.from("mentors").insert({
     name,
-    subjects,
     rate_type: rateType,
     rate_amount: rateAmount,
   });

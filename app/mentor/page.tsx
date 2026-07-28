@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
+import { embeddedSubjectName } from "@/lib/masters/types";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function MentorHomePage() {
@@ -9,7 +10,9 @@ export default async function MentorHomePage() {
   // 본인이 담당한(assignments 기준) 학생 목록
   const { data: assignments } = await supabase
     .from("assignments")
-    .select("id, subject, start_date, end_date, students(id, name, school, grade)")
+    .select(
+      "id, start_date, end_date, students(id, name, school, grade), subjects(name)",
+    )
     .eq("mentor_id", profile.mentor_id!)
     .order("start_date", { ascending: false });
 
@@ -39,7 +42,7 @@ export default async function MentorHomePage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-                    {a.subject}
+                    {embeddedSubjectName(a.subjects)}
                   </span>
                   <Link
                     href={`/mentor/students/${student?.id}/tasks`}

@@ -1,3 +1,4 @@
+﻿import { embeddedSubjectName } from "@/lib/masters/types";
 import type { CalendarEvent } from "@/components/calendar/CalendarBoard";
 import { monthRange } from "@/lib/dates";
 
@@ -28,7 +29,7 @@ export async function loadCalendarData(supabase: Supabase, ym: string) {
     supabase
       .from("tasks")
       .select(
-        "id, date, subject, content, status, related_task_id, student_id, students(name)",
+        "id, date, content, status, related_task_id, student_id, students(name), subjects(name)",
       )
       .gte("date", start)
       .lte("date", end)
@@ -60,7 +61,7 @@ export async function loadCalendarData(supabase: Supabase, ym: string) {
       kind: "task",
       date: t.date,
       title: t.content,
-      subject: t.subject,
+      subject: embeddedSubjectName(t.subjects),
       status: t.status,
       studentId: t.student_id,
       studentName: rel(t.students)?.name ?? "",
@@ -137,11 +138,11 @@ export async function loadPresets(
   const [{ data: items }, { data: recent }] = await Promise.all([
     supabase
       .from("template_tasks")
-      .select("id, subject, item_type, config")
+      .select("id, item_type, config, subjects(name)")
       .limit(200),
     supabase
       .from("tasks")
-      .select("subject, content")
+      .select("content, subjects(name)")
       .order("created_at", { ascending: false })
       .limit(200),
   ]);
@@ -164,21 +165,23 @@ export async function loadPresets(
   // 템플릿 항목에서
   for (const it of items ?? []) {
     const c = (it.config ?? {}) as Record<string, string>;
-    if (it.item_type === "daily_routine") pushTask(it.subject, c.instruction);
+    const itemSubject = embeddedSubjectName(it.subjects);
+    if (it.item_type === "daily_routine") pushTask(itemSubject, c.instruction);
     if (it.item_type === "conditional") {
-      pushTask(it.subject, c.trigger);
-      pushTask(it.subject, c.action);
+      pushTask(itemSubject, c.trigger);
+      pushTask(itemSubject, c.action);
     }
-    if (it.item_type === "one_time") pushTask(it.subject, c.content);
+    if (it.item_type === "one_time") pushTask(itemSubject, c.content);
   }
 
   // 최근 자주 등록한 과제 (빈도순 상위 15)
   const freq = new Map<string, { subject: string; content: string; n: number }>();
   for (const t of recent ?? []) {
-    const key = `${t.subject}|${t.content}`;
+    const subject = embeddedSubjectName(t.subjects);
+    const key = `${subject}|${t.content}`;
     const cur = freq.get(key);
     if (cur) cur.n++;
-    else freq.set(key, { subject: t.subject, content: t.content, n: 1 });
+    else freq.set(key, { subject, content: t.content, n: 1 });
   }
   [...freq.values()]
     .sort((a, b) => b.n - a.n)

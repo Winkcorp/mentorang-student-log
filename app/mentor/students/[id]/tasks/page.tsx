@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { embeddedSubjectName } from "@/lib/masters/types";
 import { createClient } from "@/lib/supabase/server";
 import { TaskChecklist, type TaskRow } from "@/components/TaskChecklist";
 
@@ -35,10 +36,15 @@ export default async function MentorStudentTasksPage({
 
   const { data: tasks } = await supabase
     .from("tasks")
-    .select("id, date, subject, content, status, related_task_id")
+    .select("id, date, content, status, related_task_id, subjects(name)")
     .eq("student_id", id)
     .order("date")
     .order("created_at");
+
+  const rows = (tasks ?? []).map((t) => ({
+    ...t,
+    subject: embeddedSubjectName(t.subjects),
+  }));
 
   return (
     <div className="space-y-6">
@@ -53,7 +59,7 @@ export default async function MentorStudentTasksPage({
           </span>
         </h1>
       </div>
-      <TaskChecklist tasks={(tasks ?? []) as TaskRow[]} />
+      <TaskChecklist tasks={rows as unknown as TaskRow[]} />
     </div>
   );
 }

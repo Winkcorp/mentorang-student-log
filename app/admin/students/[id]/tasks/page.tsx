@@ -1,5 +1,6 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
+import { embeddedSubjectName } from "@/lib/masters/types";
 import { createClient } from "@/lib/supabase/server";
 import { TaskChecklist, type TaskRow } from "@/components/TaskChecklist";
 
@@ -21,10 +22,15 @@ export default async function AdminStudentTasksPage({
 
   const { data: tasks } = await supabase
     .from("tasks")
-    .select("id, date, subject, content, status, related_task_id")
+    .select("id, date, content, status, related_task_id, subjects(name)")
     .eq("student_id", id)
     .order("date")
     .order("created_at");
+
+  const rows = (tasks ?? []).map((t) => ({
+    ...t,
+    subject: embeddedSubjectName(t.subjects),
+  }));
 
   return (
     <div className="space-y-6">
@@ -42,7 +48,7 @@ export default async function AdminStudentTasksPage({
           </span>
         </h1>
       </div>
-      <TaskChecklist tasks={(tasks ?? []) as TaskRow[]} />
+      <TaskChecklist tasks={rows as unknown as TaskRow[]} />
     </div>
   );
 }

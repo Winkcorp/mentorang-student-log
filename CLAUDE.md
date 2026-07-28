@@ -26,7 +26,7 @@
 
 - **students**: id, name, school, grade, parent_id(FK → parents.id), status(active/inactive) — 하드 삭제 금지, status로만 관리
 - **parents**: id, name, contact
-- **mentors**: id, name, rate_type(hourly/per_session/flat), rate_amount(numeric), status(active/inactive) — 하드 삭제 금지. 담당 과목은 text[]가 아니라 mentor_capabilities가 정본
+- **mentors**: id, name, rate_type(hourly/per_session/flat), rate_amount(numeric), status(active/inactive) — 하드 삭제 금지. 담당 과목 컬럼은 없다(제거됨) — mentor_capabilities가 정본
 - **mentor_capabilities**: id, mentor_id(FK), session_type_id(FK), subject_id(FK, nullable — 과목 무관 유형은 비움) — 배정 화면에서 자격 있는 멘토를 필터링하는 기준. (mentor, session_type, subject) 유일(NULLS NOT DISTINCT)
 - **assignments**: id, student_id(FK), mentor_id(FK), session_type_id(FK), subject_id(FK, nullable), status(candidate/proposed/confirmed/ended), memo, start_date, end_date(nullable), progress_unit_label, progress_total — 같은 (student, session_type, subject) 조합에서 **confirmed는 동시에 1건만**(partial unique index)
 - **session_series**: id, assignment_id(FK), time_slot_id(FK), room_id(FK, nullable), day_of_week(ISO 1=월…7=일), start_time, end_time, start_date, total_weeks, status(active/ended/canceled), deleted_at
@@ -41,7 +41,9 @@
 
 **공통 규칙**: 모든 PK는 UUID(gen_random_uuid()), 모든 테이블에 created_at·updated_at 포함(updated_at은 트리거 자동 갱신). 금액·시간 관련 컬럼은 float 아닌 numeric(10,2). status류 컬럼은 전부 CHECK 제약으로 허용값 강제. students/mentors를 참조하는 FK(sessions, tasks, settlements 등)는 ON DELETE RESTRICT로 이력 보호, assignments·template_tasks·mentor_capabilities 같은 순수 연결 테이블만 ON DELETE CASCADE. tasks·sessions·session_series 삭제는 하드 삭제가 아니라 deleted_at(소프트 삭제) — 조회 시 항상 `deleted_at is null` 조건을 건다.
 
-**전환 중인 컬럼**: `tasks.subject` / `template_tasks.subject` / `assignments.subject`(text)와 `mentors.subjects`(text[])는 DEPRECATED다. 마이그레이션 `20260728100000_schema_v2_masters.sql`이 subject_id를 추가하고 양방향 동기화 트리거(`resolve_subject_ref`)를 걸어둬서 구코드도 아직 동작한다. 앱 코드를 subject_id로 옮긴 뒤 후속 마이그레이션에서 텍스트 컬럼과 트리거를 DROP한다. **새 코드는 subject_id만 쓸 것.**
+**과목 전환 완료**: `subject`(text) 컬럼과 동기화 트리거는 `20260728160000`에서 제거됐다. 과목은 `subject_id` FK만 쓴다. 화면이 과목을 이름으로 다루는 경로(빠른입력·붙여넣기)는 서버 액션에서 `lib/subjects/resolve.ts`로 이름→id를 해석하며, **마스터에 없는 이름은 만들지 않고 오류로 돌려준다** — 오타로 유령 과목이 생기는 게 v1의 문제였다. `subject_id`는 nullable이다(과목을 특정할 수 없는 과거 데이터 보존). 화면은 없으면 "미지정"으로 표시한다.
+
+**마스터 관리**: 과목·세션유형·시간대·공간은 `/admin/masters`에서 등록/수정한다. 삭제는 없고 비활성화만 있다 — 참조 FK가 RESTRICT이고 지우면 과거 데이터의 라벨이 사라진다.
 
 ## 학습 항목 유형 (template_tasks.item_type별 config)
 

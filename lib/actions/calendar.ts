@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getProfile } from "@/lib/auth";
+import { loadSubjectsByName } from "@/lib/subjects/resolve";
 import { createClient } from "@/lib/supabase/server";
 import type { QuickCreatePayload } from "@/components/calendar/CalendarBoard";
 
@@ -42,11 +43,20 @@ export async function calendarQuickCreate(
       dates.push(date);
     }
 
+    // 화면은 과목을 이름으로 다루지만 저장은 subject_id로 한다
+    const subjects = await loadSubjectsByName();
+    const subject = subjects.get(s.subject.trim());
+    if (!subject) {
+      return {
+        error: `등록되지 않은 과목입니다: "${s.subject}" — 마스터 관리에서 먼저 추가하세요.`,
+      };
+    }
+
     const { error } = await supabase.from("tasks").insert(
       dates.map((d) => ({
         student_id: s.studentId,
         date: d,
-        subject: s.subject,
+        subject_id: subject.id,
         content: s.content,
         status: "planned",
       })),
@@ -151,14 +161,22 @@ export async function calendarUpdateTask(
   if (!profile?.role || profile.role === "parent")
     return { error: "권한이 없습니다." };
 
-  const subject = patch.subject.trim();
+  const subjectName = patch.subject.trim();
   const content = patch.content.trim();
-  if (!subject || !content) return { error: "과목과 내용을 입력하세요." };
+  if (!subjectName || !content) return { error: "과목과 내용을 입력하세요." };
+
+  const subjects = await loadSubjectsByName();
+  const subject = subjects.get(subjectName);
+  if (!subject) {
+    return {
+      error: `등록되지 않은 과목입니다: "${subjectName}" — 마스터 관리에서 먼저 추가하세요.`,
+    };
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("tasks")
-    .update({ subject, content })
+    .update({ subject_id: subject.id, content })
     .eq("id", id)
     .select("id");
   if (error) return { error: error.message };
